@@ -1,0 +1,3 @@
+/Users/aaronher/Desktop/GameEngine-Editor/Debug/CMakeFiles/Editor.dir
+/Users/aaronher/Desktop/GameEngine-Editor/Debug/CMakeFiles/edit_cache.dir
+/Users/aaronher/Desktop/GameEngine-Editor/Debug/CMakeFiles/rebuild_cache.dir
