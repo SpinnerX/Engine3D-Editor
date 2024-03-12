@@ -1,3 +1,0 @@
-/Users/aaronher/Desktop/Engine3D-Editor/Debug/CMakeFiles/Editor.dir
-/Users/aaronher/Desktop/Engine3D-Editor/Debug/CMakeFiles/edit_cache.dir
-/Users/aaronher/Desktop/Engine3D-Editor/Debug/CMakeFiles/rebuild_cache.dir
