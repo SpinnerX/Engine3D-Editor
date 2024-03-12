@@ -1,8 +1,8 @@
 #pragma once
 #include <filesystem>
-#include <GameEngine/Renderer/Texture.h>
+#include <Engine3D/interfaces/Texture.h>
 
-namespace RendererEngine{
+namespace Engine3D{
 	/*
 	 *
 	 *

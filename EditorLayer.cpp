@@ -1,20 +1,19 @@
 #include "EditorLayer.h"
-#include <GameEngine/GameEnginePrecompiledHeader.h>
-#include <GameEngine/platforms/OpenGL/OpenGLShader.h>
-#include <GameEngine/Entt/entt.h>
-#include <GameEngine/Scene/SceneSerializer.h>
-#include <GameEngine/Utils/PlatformUtils.h>
-#include <GameEngine/Math/Math.h>
+#include <Engine3D/OpenGL/OpenGLShader.h>
+#include <Engine3D/Entt/entt.h>
+#include <Engine3D/Scene/SceneSerializer.h>
+#include <Engine3D/platforms/PlatformUtils.h>
+#include <Engine3D/Math/Math.h>
 #include <box2d/b2_body.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <GameEngine/Core/Application.h>
+#include <Engine3D/Core/Application.h>
 #include <imgui/imgui.h>
 #include <ImGuizmo/ImGuizmo.h>
-#include <GameEngine/Scene/Components.h>
-#include <GameEngine/Renderer/RenderCommand.h>
+#include <Engine3D/Scene/Components.h>
+#include <Engine3D/Renderer/RenderCommand.h>
 
-namespace RendererEngine{
+namespace Engine3D{
 	EditorLayer::EditorLayer() : Layer("Sandbox2D"){
 	}
 

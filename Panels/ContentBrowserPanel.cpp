@@ -1,11 +1,11 @@
-#include <GameEngine/GameEnginePrecompiledHeader.h>
+#include <Engine3D/Engine3DPrecompiledHeader.h>
 #include "ContentBrowserPanel.h"
 #include <imgui/imgui.h>
 #include <filesystem>
-#include <GameEngine/Events/MouseEvent.h>
-#include <GameEngine/Core/InputPoll.h>
+#include <Engine3D/Events/MouseEvent.h>
+#include <Engine3D/Events/InputPoll.h>
 
-namespace RendererEngine{
+namespace Engine3D{
 	static const std::filesystem::path _assetPath = "assets";
 
 	ContentBrowserPanel::ContentBrowserPanel() : _currentDirectory(_assetPath){

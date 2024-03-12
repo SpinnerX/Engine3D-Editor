@@ -1,9 +1,9 @@
 #pragma once
-#include <GameEngine/Core/core.h>
-#include <GameEngine/Scene/Scene.h>
-#include <GameEngine/Scene/Entity.h>
+#include <Engine3D/Core/core.h>
+#include <Engine3D/Scene/Scene.h>
+#include <Engine3D/Scene/Entity.h>
 
-namespace RendererEngine{
+namespace Engine3D{
 	/*
 	 *
 	 * @function setContext

@@ -1,16 +1,16 @@
 #pragma once
-#include <GameEngine/Core/Layer.h>
-#include <GameEngine/Renderer/VertexArray.h>
-#include <GameEngine/Renderer/Shader.h>
-#include <GameEngine/Renderer/Texture.h>
-#include <GameEngine/Renderer/Framebuffer.h>
-#include <GameEngine/Scene/Entity.h>
-#include <GameEngine/Renderer/EditorCamera.h>
-#include <GameEngine/Events/KeyEvent.h>
+#include <Engine3D/Core/Layer.h>
+#include <Engine3D/interfaces/VertexArray.h>
+#include <Engine3D/interfaces/Shader.h>
+#include <Engine3D/interfaces/Texture.h>
+#include <Engine3D/interfaces/Framebuffer.h>
+#include <Engine3D/Scene/Entity.h>
+#include <Engine3D/Renderer/EditorCamera.h>
+#include <Engine3D/Events/KeyEvent.h>
 #include "Panels/SceneHeirarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 
-namespace RendererEngine{
+namespace Engine3D{
 
     class EditorLayer : public Layer{
     public:

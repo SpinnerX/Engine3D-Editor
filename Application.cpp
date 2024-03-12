@@ -1,8 +1,8 @@
-#include <GameEngine/Core/Application.h>
-#include <GameEngine/Core/EntryPoint.h>
+#include <Engine3D/Core/Application.h>
+#include <Engine3D/Core/EntryPoint.h>
 #include "EditorLayer.h"
 
-namespace RendererEngine{
+namespace Engine3D{
     class EngineEditor : public Application{
     public:
         EngineEditor(ApplicationCommandLineArgs args) : Application("Engine Editor", args) {
