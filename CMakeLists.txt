@@ -39,5 +39,5 @@ target_link_libraries(
     ImGuizmo::ImGuizmo
     box2d::box2d
     yaml-cpp::yaml-cpp
-    # ${APPKIT_LIBRARY} ${UNIFORMTYPEIDENTIFIERS_LIBRARY} # Note as TODO: Probably should put this somewhere else, since it relies on nfd.cmake...
+    ${APPKIT_LIBRARY} ${UNIFORMTYPEIDENTIFIERS_LIBRARY} # Note as TODO: Probably should put this somewhere else, since it relies on nfd.cmake...
 )
