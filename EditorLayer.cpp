@@ -1,7 +1,7 @@
 #include "EditorLayer.h"
 #include <Engine3D/OpenGL/OpenGLShader.h>
 #include <Engine3D/Entt/entt.h>
-#include <Engine3D/Scene/SceneSerializer.h>
+#include <Engine3D/Scene2D/SceneSerializer.h>
 #include <Engine3D/platforms/PlatformUtils.h>
 #include <Engine3D/Math/Math.h>
 #include <box2d/b2_body.h>
@@ -10,8 +10,8 @@
 #include <Engine3D/Core/Application.h>
 #include <imgui/imgui.h>
 #include <ImGuizmo/ImGuizmo.h>
-#include <Engine3D/Scene/Components.h>
-#include <Engine3D/Renderer/RenderCommand.h>
+#include <Engine3D/Scene2D/Components.h>
+#include <Engine3D/Renderer2D/RenderCommand.h>
 
 namespace Engine3D{
 	EditorLayer::EditorLayer() : Layer("Sandbox2D"){
@@ -19,13 +19,14 @@ namespace Engine3D{
 
 	void EditorLayer::onAttach(){
 		RENDER_PROFILE_FUNCTION();
+		
+		// @note For creating our textures
 		_checkerboardTexture = Texture2D::Create("assets/Checkerboard.png");
 		_iconPlay = Texture2D::Create("assets/icons/PlayButton.png");
 		_iconStop = Texture2D::Create("assets/icons/StopButton.png");
 
 		FrameBufferSpecifications frameBufSpecs;
-		// @note in opengl has different RGB, such as RGBA8, RED (same as RGBA8 but one channel that is an int.)
-		// @note RED_INTEGER
+		// @note In graphics, there are different formats OpenGL handles RGB, such as RGBA8, RED (same as RGBA8 but one channel that is an int.)
 		frameBufSpecs.attachments = { FrameBufferTextureFormat::RGBA8, FrameBufferTextureFormat::RED_INTEGER, FrameBufferTextureFormat::DEPTH24STENCIL8 };
 		frameBufSpecs.width = 1280;
 		frameBufSpecs.height = 720;
@@ -45,6 +46,7 @@ namespace Engine3D{
 		_editorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 		
 		_sceneHeirarchyPanel.setContext(_activeScene);
+		/* hoveredEntity = Entity(); */
 	}
 
 	void EditorLayer::onDetach(){
@@ -76,22 +78,23 @@ namespace Engine3D{
 		_framebuffers->bind();
 		RendererCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RendererCommand::clear();
-		
-		/* _framebuffers->clearColorAttachment(1, -1); */
+		Ref<Texture2D> icon = _sceneState == SceneState::Edit ? _iconPlay : _iconStop;
 
-		switch (_sceneState) {
-			case SceneState::Play:
+		/* _framebuffers->clearColorAttachment(1, -1); */
+			switch (_sceneState) {
+			case SceneState::Edit:
 				{
 					_editorCamera.onUpdate(ts);
 
 					_activeScene->onUpdateEditor(ts, _editorCamera);
 				}
 				break;
-			case SceneState::Edit:
+			case SceneState::Play:
 				{
 					_activeScene->onUpdateRuntime(ts);
+					break;
 				}
-				break;
+
 		}
 		
 		// glClearTexImage does not work in Mac, hence commented this out.
@@ -103,24 +106,15 @@ namespace Engine3D{
 		mouseY -= _viewportBound[0].y;
 
 		glm::vec2 viewportSize = _viewportBound[1] - _viewportBound[0];
-		mouseY -= viewportSize.y - mouseY; // This makes our bottom left (0, 0)
+		mouseY = viewportSize.y - mouseY; // This makes our bottom left (0, 0)
 		int currentMouseX = (int)mouseX;
 		int currentMouseY = (int)mouseY;
 		
-
 		// @note giving feedback the pixel of that vertex buffer.
 		if(mouseX >= 0 and mouseY >= 0 and mouseX < (int)viewportSize.x and mouseY < (int)viewportSize.y){
 			int pixel = _framebuffers->readPixel(1, currentMouseX, currentMouseY);
-			if(pixel != 1036831949){
-				hoveredEntity = Entity((entt::entity)pixel, _activeScene.get());
-				pixelHoveredValue = pixel;
-			}
-			else{
-				hoveredEntity = {};
-				pixelHoveredValue = pixel;
-			}
-
-			/* hoveredEntity = pixel == 103681949 ? Entity() : Entity((entt::entity)pixel, _activeScene.get()); */
+			coreLogInfo("Pixel Data is {}", pixel);
+			/* hoveredEntity = pixel == -1 ? Entity() : Entity((entt::entity)pixel, _activeScene.get()); */
 		}
 
 		_framebuffers->unbind();
@@ -174,34 +168,34 @@ namespace Engine3D{
 		}
 		style.WindowMinSize.x = minWinSizeX;
 	
-		if (ImGui::BeginMenuBar()){
-			if (ImGui::BeginMenu("File")){
+		/* if (ImGui::BeginMenuBar()){ */
+		/* 	if (ImGui::BeginMenu("File")){ */
 				
-				if(ImGui::MenuItem("New", "Ctrl+N")){
-					newScene();
-				}
+		/* 		if(ImGui::MenuItem("New", "Ctrl+N")){ */
+		/* 			newScene(); */
+		/* 		} */
 
-				ImGui::Separator();
+		/* 		ImGui::Separator(); */
 
-				if(ImGui::MenuItem("Open", "Ctrl+O")){
-					openScene();
-				}
+		/* 		if(ImGui::MenuItem("Open", "Ctrl+O")){ */
+					/* openScene(); */
+				/* } */
 				
-				ImGui::Separator();
+				/* ImGui::Separator(); */
 
-				if(ImGui::MenuItem("Save as", "Ctrl+Shift+s")){
-					saveAs();
-				}
+				/* if(ImGui::MenuItem("Save as", "Ctrl+Shift+s")){ */
+				/* 	saveAs(); */
+				/* } */
 				
-				ImGui::Separator();
+				/* ImGui::Separator(); */
 
 
-				if(ImGui::MenuItem("Exit", "Ctrl+X")) Application::Get().close();
+				/* if(ImGui::MenuItem("Exit", "Ctrl+X")) Application::Get().close(); */
 
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
+				/* ImGui::EndMenu(); */
+			/* } */
+			/* ImGui::EndMenuBar(); */
+		/* } */
 		
 		// @note TODO: Probably adding panels to a list, in the cases that there will be multiple panels for the editor.
 		_sceneHeirarchyPanel.onImguiRender();
@@ -215,7 +209,6 @@ namespace Engine3D{
 		}
 
 		ImGui::Text("Hovered Entity: %s", name.c_str());
-		ImGui::Text("Pixel Value: %i", pixelHoveredValue);
 
 		auto stats = Renderer2D::getStats();
 		ImGui::Text("Renderer2D Stats");
@@ -435,35 +428,41 @@ namespace Engine3D{
 
 	void EditorLayer::openScene(){
 		
-		std::string filepath = FileDialogs::openFile("Game Engine (*.engine)\0*.engine\0");
-		coreLogTrace("Trace #2 -- filepath = {0}\n", filepath);
+		/* std::string filepath = FileDialogs::openFile("Game Engine (*.engine)\0*.engine\0"); */
+		/* coreLogTrace("Trace #2 -- filepath = {0}\n", filepath); */
 		
-		if(!filepath.empty()){
-			_activeScene = CreateRef<Scene>();
-			_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
-			_sceneHeirarchyPanel.setContext(_activeScene);
+		/* if(!filepath.empty()){ */
+		/* 	_activeScene = CreateRef<Scene>(); */
+		/* 	_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y); */
+		/* 	_sceneHeirarchyPanel.setContext(_activeScene); */
 
-			SceneSerializer serializer(_activeScene);
-			serializer.deserialize(filepath);
-		}
-	}
-	
-	void EditorLayer::openSceneTarget(std::filesystem::path* path){
+		/* 	SceneSerializer serializer(_activeScene); */
+		/* 	serializer.deserialize(filepath); */
+		/* } */
 		_activeScene = CreateRef<Scene>();
 		_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
 		_sceneHeirarchyPanel.setContext(_activeScene);
 
 		SceneSerializer serializer(_activeScene);
-		serializer.deserialize(path->string());
+		serializer.deserialize("assets/scene/3DGreenCubeWorks.engine");
+	}
+	
+	void EditorLayer::openSceneTarget(std::filesystem::path* path){
+		/* _activeScene = CreateRef<Scene>(); */
+		/* _activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y); */
+		/* _sceneHeirarchyPanel.setContext(_activeScene); */
+
+		/* SceneSerializer serializer(_activeScene); */
+		/* serializer.deserialize(path->string()); */
 	}
 
 	void EditorLayer::saveAs(){
-		std::string filepath = FileDialogs::saveFile("Game Engine (*.engine)\0*.engine\0");
+		/* std::string filepath = FileDialogs::saveFile("Game Engine (*.engine)\0*.engine\0"); */
 		
-		if(!filepath.empty()){
-			SceneSerializer serializer(_activeScene);
-			serializer.serializer(filepath);
-		}
+		/* if(!filepath.empty()){ */
+		/* 	SceneSerializer serializer(_activeScene); */
+		/* 	serializer.serializer(filepath); */
+		/* } */
 	}
 	
 	bool EditorLayer::onMousePressed(MouseButtonPressedEvent& e){

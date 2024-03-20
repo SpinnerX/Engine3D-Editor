@@ -1,0 +1,3 @@
+/home/spinnerx/Desktop/Engine3D-Editor/build/CMakeFiles/Editor.dir
+/home/spinnerx/Desktop/Engine3D-Editor/build/CMakeFiles/edit_cache.dir
+/home/spinnerx/Desktop/Engine3D-Editor/build/CMakeFiles/rebuild_cache.dir

@@ -4,8 +4,8 @@
 #include <Engine3D/interfaces/Shader.h>
 #include <Engine3D/interfaces/Texture.h>
 #include <Engine3D/interfaces/Framebuffer.h>
-#include <Engine3D/Scene/Entity.h>
-#include <Engine3D/Renderer/EditorCamera.h>
+#include <Engine3D/Scene2D/Entity.h>
+#include <Engine3D/Renderer2D/EditorCamera.h>
 #include <Engine3D/Events/KeyEvent.h>
 #include "Panels/SceneHeirarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
@@ -68,7 +68,7 @@ namespace Engine3D{
 
 		Entity hoveredEntity; // Gives us the entity we are hovering over.
 		
-		uint32_t pixelHoveredValue=0;
+		/* uint32_t pixelHoveredValue=0; */
 
 		int _gizmoType = -1; // @note this is going to be the type of operationt he gizmal is going to be.
 

@@ -1,11 +1,11 @@
 #include "SceneHeirarchyPanel.h"
-#include <Engine3D/Scene/Entity.h>
-#include <Engine3D/Scene/Scene.h>
-#include <Engine3D/Scene/Components.h>
+#include <Engine3D/Scene2D/Entity.h>
+#include <Engine3D/Scene2D/Scene.h>
+#include <Engine3D/Scene2D/Components.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui_internal.h>
 #include <Engine3D/interfaces/Texture.h>
-
+#include <filesystem>
 namespace Engine3D{
 	extern const std::filesystem::path _assetPath;
 	const std::filesystem::path _assetPath = "assets";

@@ -1,7 +1,7 @@
 #pragma once
 #include <Engine3D/Core/core.h>
-#include <Engine3D/Scene/Scene.h>
-#include <Engine3D/Scene/Entity.h>
+#include <Engine3D/Scene2D/Scene.h>
+#include <Engine3D/Scene2D/Entity.h>
 
 namespace Engine3D{
 	/*
