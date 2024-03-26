@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/Users/aaronher/Desktop/Engine3D-Editor/Debug",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -F/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/Library/Frameworks -isystem /usr/local/include -isystem /opt/homebrew/include -isystem /opt/homebrew/lib -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -F/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/System/Library/Frameworks  -fsanitize=address -o CMakeFiles/Editor.dir/Application.cpp.o -c /Users/aaronher/Desktop/Engine3D-Editor/Application.cpp",
+  "file": "/Users/aaronher/Desktop/Engine3D-Editor/Application.cpp",
+  "output": "CMakeFiles/Editor.dir/Application.cpp.o"
+},
+{
+  "directory": "/Users/aaronher/Desktop/Engine3D-Editor/Debug",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -F/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/Library/Frameworks -isystem /usr/local/include -isystem /opt/homebrew/include -isystem /opt/homebrew/lib -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -F/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/System/Library/Frameworks  -fsanitize=address -o CMakeFiles/Editor.dir/EditorLayer.cpp.o -c /Users/aaronher/Desktop/Engine3D-Editor/EditorLayer.cpp",
+  "file": "/Users/aaronher/Desktop/Engine3D-Editor/EditorLayer.cpp",
+  "output": "CMakeFiles/Editor.dir/EditorLayer.cpp.o"
+},
+{
+  "directory": "/Users/aaronher/Desktop/Engine3D-Editor/Debug",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -F/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/Library/Frameworks -isystem /usr/local/include -isystem /opt/homebrew/include -isystem /opt/homebrew/lib -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -F/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/System/Library/Frameworks  -fsanitize=address -o CMakeFiles/Editor.dir/Panels/SceneHeirarchyPanel.cpp.o -c /Users/aaronher/Desktop/Engine3D-Editor/Panels/SceneHeirarchyPanel.cpp",
+  "file": "/Users/aaronher/Desktop/Engine3D-Editor/Panels/SceneHeirarchyPanel.cpp",
+  "output": "CMakeFiles/Editor.dir/Panels/SceneHeirarchyPanel.cpp.o"
+},
+{
+  "directory": "/Users/aaronher/Desktop/Engine3D-Editor/Debug",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++ -DFMT_SHARED -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSPDLOG_SHARED_LIB -F/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/Library/Frameworks -isystem /usr/local/include -isystem /opt/homebrew/include -isystem /opt/homebrew/lib -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -F/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/System/Library/Frameworks  -fsanitize=address -o CMakeFiles/Editor.dir/Panels/ContentBrowserPanel.cpp.o -c /Users/aaronher/Desktop/Engine3D-Editor/Panels/ContentBrowserPanel.cpp",
+  "file": "/Users/aaronher/Desktop/Engine3D-Editor/Panels/ContentBrowserPanel.cpp",
+  "output": "CMakeFiles/Editor.dir/Panels/ContentBrowserPanel.cpp.o"
+}
+]

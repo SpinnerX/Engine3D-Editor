@@ -114,7 +114,15 @@ namespace Engine3D{
 		if(mouseX >= 0 and mouseY >= 0 and mouseX < (int)viewportSize.x and mouseY < (int)viewportSize.y){
 			int pixel = _framebuffers->readPixel(1, currentMouseX, currentMouseY);
 			coreLogInfo("Pixel Data is {}", pixel);
-			/* hoveredEntity = pixel == -1 ? Entity() : Entity((entt::entity)pixel, _activeScene.get()); */
+
+			// @note For some reason pixel gives values 1036831949 or either -1, so this is just a simple work around.
+			// @note Should probably have a UUID's for this...
+			if(pixel == -1 || pixel > 10000000){
+				hoveredEntity = Entity();
+			}
+			else{
+				hoveredEntity = Entity((entt::entity)pixel, _activeScene.get());
+			}
 		}
 
 		_framebuffers->unbind();
@@ -168,34 +176,34 @@ namespace Engine3D{
 		}
 		style.WindowMinSize.x = minWinSizeX;
 	
-		/* if (ImGui::BeginMenuBar()){ */
-		/* 	if (ImGui::BeginMenu("File")){ */
+		if (ImGui::BeginMenuBar()){
+			if (ImGui::BeginMenu("File")){
 				
-		/* 		if(ImGui::MenuItem("New", "Ctrl+N")){ */
-		/* 			newScene(); */
-		/* 		} */
+				if(ImGui::MenuItem("New", "Ctrl+N")){
+					newScene();
+				}
 
-		/* 		ImGui::Separator(); */
+				ImGui::Separator();
 
-		/* 		if(ImGui::MenuItem("Open", "Ctrl+O")){ */
-					/* openScene(); */
-				/* } */
+				if(ImGui::MenuItem("Open", "Ctrl+O")){
+					openScene();
+				}
 				
-				/* ImGui::Separator(); */
+				ImGui::Separator();
 
-				/* if(ImGui::MenuItem("Save as", "Ctrl+Shift+s")){ */
-				/* 	saveAs(); */
-				/* } */
+				if(ImGui::MenuItem("Save as", "Ctrl+Shift+s")){
+					saveAs();
+				}
 				
-				/* ImGui::Separator(); */
+				ImGui::Separator();
 
 
-				/* if(ImGui::MenuItem("Exit", "Ctrl+X")) Application::Get().close(); */
+				if(ImGui::MenuItem("Exit", "Ctrl+X")) Application::Get().close();
 
-				/* ImGui::EndMenu(); */
-			/* } */
-			/* ImGui::EndMenuBar(); */
-		/* } */
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
 		
 		// @note TODO: Probably adding panels to a list, in the cases that there will be multiple panels for the editor.
 		_sceneHeirarchyPanel.onImguiRender();
@@ -428,41 +436,41 @@ namespace Engine3D{
 
 	void EditorLayer::openScene(){
 		
-		/* std::string filepath = FileDialogs::openFile("Game Engine (*.engine)\0*.engine\0"); */
-		/* coreLogTrace("Trace #2 -- filepath = {0}\n", filepath); */
+		std::string filepath = FileDialogs::openFile("Game Engine (*.engine)\0*.engine\0");
+		coreLogTrace("Trace #2 -- filepath = {0}\n", filepath);
 		
-		/* if(!filepath.empty()){ */
-		/* 	_activeScene = CreateRef<Scene>(); */
-		/* 	_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y); */
-		/* 	_sceneHeirarchyPanel.setContext(_activeScene); */
+		if(!filepath.empty()){
+			_activeScene = CreateRef<Scene>();
+			_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
+			_sceneHeirarchyPanel.setContext(_activeScene);
 
-		/* 	SceneSerializer serializer(_activeScene); */
-		/* 	serializer.deserialize(filepath); */
-		/* } */
-		_activeScene = CreateRef<Scene>();
-		_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
-		_sceneHeirarchyPanel.setContext(_activeScene);
-
-		SceneSerializer serializer(_activeScene);
-		serializer.deserialize("assets/scene/3DGreenCubeWorks.engine");
-	}
-	
-	void EditorLayer::openSceneTarget(std::filesystem::path* path){
+			SceneSerializer serializer(_activeScene);
+			serializer.deserialize(filepath);
+		}
 		/* _activeScene = CreateRef<Scene>(); */
 		/* _activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y); */
 		/* _sceneHeirarchyPanel.setContext(_activeScene); */
 
 		/* SceneSerializer serializer(_activeScene); */
-		/* serializer.deserialize(path->string()); */
+		/* serializer.deserialize("assets/scene/3DGreenCubeWorks.engine"); */
+	}
+	
+	void EditorLayer::openSceneTarget(std::filesystem::path* path){
+		_activeScene = CreateRef<Scene>();
+		_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
+		_sceneHeirarchyPanel.setContext(_activeScene);
+
+		SceneSerializer serializer(_activeScene);
+		serializer.deserialize(path->string());
 	}
 
 	void EditorLayer::saveAs(){
-		/* std::string filepath = FileDialogs::saveFile("Game Engine (*.engine)\0*.engine\0"); */
+		std::string filepath = FileDialogs::saveFile("Game Engine (*.engine)\0*.engine\0");
 		
-		/* if(!filepath.empty()){ */
-		/* 	SceneSerializer serializer(_activeScene); */
-		/* 	serializer.serializer(filepath); */
-		/* } */
+		if(!filepath.empty()){
+			SceneSerializer serializer(_activeScene);
+			serializer.serializer(filepath);
+		}
 	}
 	
 	bool EditorLayer::onMousePressed(MouseButtonPressedEvent& e){
@@ -470,7 +478,7 @@ namespace Engine3D{
 		// @note enabling mouse picking here
 		if(e.GetMouseButton() == Mouse::ButtonLeft){
 			
-			if(_isViewportHovered && !ImGuizmo::IsUsing() && !InputPoll::isKeyPressed(Key::LeftAlt))
+			if(_isViewportHovered && !ImGuizmo::IsOver() && !InputPoll::isKeyPressed(Key::LeftAlt))
 				_sceneHeirarchyPanel.setSelectedEntity(hoveredEntity);
 		}
 
