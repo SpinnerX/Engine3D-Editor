@@ -46,7 +46,6 @@ namespace Engine3D{
 		_editorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
 		
 		_sceneHeirarchyPanel.setContext(_activeScene);
-		/* hoveredEntity = Entity(); */
 	}
 
 	void EditorLayer::onDetach(){
@@ -78,6 +77,10 @@ namespace Engine3D{
 		_framebuffers->bind();
 		RendererCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RendererCommand::clear();
+		
+		// @note Clearing out entity ID attachment to -1
+		_framebuffers->clearColorAttachment(1, -1);
+
 		Ref<Texture2D> icon = _sceneState == SceneState::Edit ? _iconPlay : _iconStop;
 
 		/* _framebuffers->clearColorAttachment(1, -1); */
@@ -253,7 +256,6 @@ namespace Engine3D{
 			// Recreating the frame buffer.
 			_framebuffers->resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 			_viewportSize = {viewportPanelSize.x, viewportPanelSize.y};
-			/* _cameraController.onResize(_viewportSize.x, _viewportSize.y); */
 		}
 
 		// By passing this renderer ID, this gives us the ID of the texture that we want to render.
@@ -278,7 +280,7 @@ namespace Engine3D{
 			ImGuizmo::SetOrthographic(false);
 			ImGuizmo::SetDrawlist();
 			
-			// Drawing the gismo (and figuring out where the camera is.
+			// Drawing the gizmo (and figuring out where the camera is.
 			ImGuizmo::SetRect(_viewportBound[0].x, _viewportBound[0].y, _viewportBound[1].x - _viewportBound[0].x, _viewportBound[1].y - _viewportBound[0].y);
 
 			// @note Getting the camera information

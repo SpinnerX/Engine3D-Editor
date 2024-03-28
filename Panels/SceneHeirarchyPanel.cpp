@@ -11,7 +11,9 @@ namespace Engine3D{
 	const std::filesystem::path _assetPath = "assets";
 
 	// Since BeginPopupContextWindow(const char*, ImGuiMouseButton, bool) is obsolete in ImGui, just recreated that function call through here.
-    static inline bool BeginPopupContextWindow(const char* str_id, ImGuiMouseButton mb, bool over_items) { return ImGui::BeginPopupContextWindow(str_id, mb | (over_items ? 0 : ImGuiPopupFlags_NoOpenOverItems)); }
+    static inline bool BeginPopupContextWindow(const char* str_id, ImGuiMouseButton mb, bool over_items) {
+		return ImGui::BeginPopupContextWindow(str_id, mb | (over_items ? 0 : ImGuiPopupFlags_NoOpenOverItems));
+	}
 
 	SceneHeirachyPanel::SceneHeirachyPanel(const Ref<Scene>& scene){
 		setContext(scene);
@@ -418,13 +420,13 @@ namespace Engine3D{
 				ImGui::DragFloat("Tiling Factor", &component.tilingFactor, 0.1f, 0.0f, 100.0f);
 		});
 
-		drawComponent<RigidBody2DComponent>("RigidBody 2D", entity, [](auto& component){
-			coreLogWarn("Failure Detected Debug #1");
+		drawComponent<RigidBody2DComponent>("Rigidbody 2D", entity, [](auto& component){
+			/* coreLogWarn("Failure Detected Debug #1"); */
 			const char* bodyTypeString[] = { "Static", "Dynamic", "Kinematic" };
 			const char* currentBodyStringType = bodyTypeString[(int)component.type];
-			coreLogWarn("Failure Detected Debug #2");
+			/* coreLogWarn("Failure Detected Debug #2"); */
 
-			if(ImGui::BeginCombo("Body Type", "Dynamic")){
+			if(ImGui::BeginCombo("Body Type", currentBodyStringType)){
 				for(int i = 0; i < 2; i++){
 					bool isSelected = currentBodyStringType == bodyTypeString[i];
 
@@ -441,7 +443,7 @@ namespace Engine3D{
 				ImGui::EndCombo();
 			}
 
-			coreLogWarn("Failure Detected Debug #");
+			/* coreLogWarn("Failure Detected Debug #"); */
 
 			ImGui::Checkbox("Fixed Rotation", &component.hasFixedRotation);
 		});
