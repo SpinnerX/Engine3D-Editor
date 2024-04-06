@@ -115,6 +115,12 @@ namespace Engine3D{
 			int pixel = _framebuffers->readPixel(1, currentMouseX, currentMouseY);
 			coreLogInfo("Pixel Data is {}", pixel);
 			/* hoveredEntity = pixel == -1 ? Entity() : Entity((entt::entity)pixel, _activeScene.get()); */
+			if(pixel == -1 || pixel > 1000000){
+				hoveredEntity = {};
+			}
+			else{
+				hoveredEntity = Entity((entt::entity)pixel, _activeScene.get());
+			}
 		}
 
 		_framebuffers->unbind();
