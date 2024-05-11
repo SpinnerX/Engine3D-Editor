@@ -39,6 +39,8 @@ add_executable(
     Panels/ContentBrowserPanel.cpp
 )
 
+file(COPY ${CMAKE_SOURCE_DIR}/imgui.ini DESTINATION ${CMAKE_BINARY_DIR})
+
 target_link_libraries(
     ${PROJECT_NAME}
     Engine3D::Engine3D

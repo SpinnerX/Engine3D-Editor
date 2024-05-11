@@ -4,8 +4,10 @@
 #include <Engine3D/Scene2D/Components.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui_internal.h>
-#include <Engine3D/interfaces/Texture.h>
+#include <Engine3D/Graphics/Texture.h>
 #include <filesystem>
+#include <Engine3D/Core/EngineLogger.h>
+
 namespace Engine3D{
 	extern const std::filesystem::path _assetPath;
 	const std::filesystem::path _assetPath = "assets";
@@ -71,7 +73,7 @@ namespace Engine3D{
 	}
 	
 	void SceneHeirachyPanel::drawEntityNode(Entity entity){
-		auto& tc = entity.getComponent<TagComponent>().tag;
+		auto& tc = entity.GetComponent<TagComponent>().tag;
 
 		// @param entity - actual entity that we want to pass in
 		// @param flags - Click on actual arrow to expand and select that entity.
@@ -79,7 +81,7 @@ namespace Engine3D{
 		// @note entities are all unique and will not have the same entity in the same panel
 		ImGuiTreeNodeFlags flags = ((_selectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;	
-		bool opened = ImGui::TreeNodeEx((void *)(uint64_t)(uint32_t)entity, flags, tc.c_str());
+		bool opened = ImGui::TreeNodeEx((void *)(uint64_t)(uint32_t)entity, flags, "%s", tc.c_str());
 
 		if(ImGui::IsItemClicked()){
 			_selectionContext = entity;
@@ -212,8 +214,8 @@ namespace Engine3D{
 	static void drawComponent(const std::string& name, Entity entity, UIFunction uiFunction){
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
-		if(entity.hasComponent<T>()){
-			auto& component = entity.getComponent<T>();
+		if(entity.HasComponent<T>()){
+			auto& component = entity.GetComponent<T>();
 			ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
@@ -249,15 +251,15 @@ namespace Engine3D{
 			}
 			
 			if(isRemovedComponent)
-				entity.removeComponent<T>();
+				entity.RemoveComponent<T>();
 		}
 		
 	}
 	
 	void SceneHeirachyPanel::drawComponents(Entity entity){
 		// checking if entity has components.
-		if(entity.hasComponent<TagComponent>()){
-			auto& tag = entity.getComponent<TagComponent>().tag;
+		if(entity.HasComponent<TagComponent>()){
+			auto& tag = entity.GetComponent<TagComponent>().tag;
 
 			// @context Camera0
 			char buffer[256];
@@ -277,30 +279,31 @@ namespace Engine3D{
 			ImGui::OpenPopup("Add Component");
 
 		if(ImGui::BeginPopup("Add Component")){
-			if(!_selectionContext.hasComponent<CameraComponent>()){
+			if(!_selectionContext.HasComponent<CameraComponent>()){
 				if(ImGui::MenuItem("Camera")){
-					_selectionContext.addComponent<CameraComponent>();
+					_selectionContext.AddComponent<CameraComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			
-			if(!_selectionContext.hasComponent<SpriteRendererComponent>()){
+			if(!_selectionContext.HasComponent<SpriteRendererComponent>()){
 				if(ImGui::MenuItem("Sprite Renderer")){
-					_selectionContext.addComponent<SpriteRendererComponent>();
+					_selectionContext.AddComponent<SpriteRendererComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			
-			if(!_selectionContext.hasComponent<RigidBody2DComponent>()){
+			if(!_selectionContext.HasComponent<RigidBody2DComponent>()){
 				if(ImGui::MenuItem("Rigidbody 2D")){
-					_selectionContext.addComponent<RigidBody2DComponent>();
+					coreLogWarn("Adding <RigidBody2DComponent>");
+					_selectionContext.AddComponent<RigidBody2DComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			
-			if(!_selectionContext.hasComponent<BoxCollider2DComponent>()){
+			if(!_selectionContext.HasComponent<BoxCollider2DComponent>()){
 				if(ImGui::MenuItem("Box Collider 2D")){
-					_selectionContext.addComponent<BoxCollider2DComponent>();
+					_selectionContext.AddComponent<BoxCollider2DComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -317,7 +320,7 @@ namespace Engine3D{
 		// @note TODO probably change the api call to the following below for entity and components retrieval.
 		/*
 		 drawComponent<CameraComponent>("Camera"), [](){
-			auto& src = entity.getComponent<SpriteRendererComponent>();
+			auto& src = entity.GetComponent<SpriteRendererComponent>();
 			ImGui::ColorEdit4("Color", glm::value_ptr(src.color));
 		 });
 		 * */
@@ -334,26 +337,22 @@ namespace Engine3D{
 		// @note Setting up camera component
 		drawComponent<CameraComponent>("Camera Component", entity, [](auto& component){
 			auto& camera = component.camera;
-
 			ImGui::Checkbox("Primary", &component.isPrimary);
-
 
 			const char* projectionTypeStrings[] = {"Perspective", "Orthographic"};
 			const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.getProjectionType()];
 			
 			// @note if BeginCombo has started.
 			if(ImGui::BeginCombo("Projection", currentProjectionTypeString)){
-					
 				// @note seeing what currently selected projection type is. 
 				for(int i = 0; i < 2; i++){
-
 					// @note handling if the projection type selected is valid and selected
 					bool isSelected = (currentProjectionTypeString == projectionTypeStrings[i]);
 					if(ImGui::Selectable(projectionTypeStrings[i], isSelected)){
 						currentProjectionTypeString = projectionTypeStrings[i];
 						camera.setProjectionType((SceneCamera::ProjectionType)i);
 					}
-						
+
 					// @note checking if already selected then setting the default focus.
 					if(isSelected){
 						ImGui::SetItemDefaultFocus();
@@ -421,10 +420,8 @@ namespace Engine3D{
 		});
 
 		drawComponent<RigidBody2DComponent>("Rigidbody 2D", entity, [](auto& component){
-			/* coreLogWarn("Failure Detected Debug #1"); */
 			const char* bodyTypeString[] = { "Static", "Dynamic", "Kinematic" };
 			const char* currentBodyStringType = bodyTypeString[(int)component.type];
-			/* coreLogWarn("Failure Detected Debug #2"); */
 
 			if(ImGui::BeginCombo("Body Type", currentBodyStringType)){
 				for(int i = 0; i < 2; i++){

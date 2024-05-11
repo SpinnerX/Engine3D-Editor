@@ -1,12 +1,10 @@
 #pragma once
 #include <Engine3D/Core/Layer.h>
-#include <Engine3D/interfaces/VertexArray.h>
-#include <Engine3D/interfaces/Shader.h>
-#include <Engine3D/interfaces/Texture.h>
-#include <Engine3D/interfaces/Framebuffer.h>
-#include <Engine3D/Scene2D/Entity.h>
-#include <Engine3D/Renderer2D/EditorCamera.h>
-#include <Engine3D/Events/KeyEvent.h>
+#include <Engine3D/Graphics/VertexArray.h>
+#include <Engine3D/Graphics/Shader.h>
+#include <Engine3D/Graphics/Texture.h>
+#include <Engine3D/Graphics/Framebuffer.h>
+#include <Engine3D/Event/KeyEvent.h>
 #include "Panels/SceneHeirarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 
@@ -18,14 +16,14 @@ namespace Engine3D{
 	
 		virtual ~EditorLayer() = default;
 
-		virtual void onAttach() override;
-		virtual void onDetach() override;
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
 
-		virtual void onUpdate(Timestep ts) override;
+		virtual void OnUpdate(Timestep ts) override;
 
-		virtual void onImguiRender() override;
+		virtual void OnUIRender() override;
 
-		virtual void onEvent(Event& e) override;
+		virtual void OnEvent(Event& e) override;
 	
 	private:
 		bool onKeyPressed(KeyPressedEvent& e);
@@ -43,11 +41,8 @@ namespace Engine3D{
 
 	private:
 		// @note ui-related function calls
-
 		void ui_toolBar();
 
-	private:
-		/* OrthographicCameraController _cameraController; */
     private:
         Ref<VertexArray> _squareVertexArrays;
 		Ref<Shader> _flatColorShader;
@@ -62,13 +57,16 @@ namespace Engine3D{
 		SceneHeirachyPanel _sceneHeirarchyPanel;
 		ContentBrowserPanel _contentBrowserPanel;
 
-		Ref<Scene> _activeScene;
+
+		Ref<Scene> _activeScene; 
+		//! @note  Differentiating what scenes we are editing and our runtime.
+		Ref<Scene> editorScene, runtimeScene;
+
+
 		bool isPrimaryCamera = true;
 		EditorCamera _editorCamera;
 
 		Entity hoveredEntity; // Gives us the entity we are hovering over.
-		
-		/* uint32_t pixelHoveredValue=0; */
 
 		int _gizmoType = -1; // @note this is going to be the type of operationt he gizmal is going to be.
 
@@ -81,12 +79,12 @@ namespace Engine3D{
 		};
 		
 		// @note Editor Resources
-		Ref<Texture2D> _iconPlay;
-		Ref<Texture2D> _iconStop;
+		Ref<Texture2D> playIcon;
+		Ref<Texture2D> stopIcon;
 
 
 
-		SceneState _sceneState = SceneState::Edit;
+		SceneState sceneState = SceneState::Edit;
     };
 
 };

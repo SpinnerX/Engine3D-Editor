@@ -1,29 +1,17 @@
+#include <Engine3D/Engine3DPrecompiledHeader.h>
 #include "EditorLayer.h"
-#include <Engine3D/OpenGL/OpenGLShader.h>
-#include <Engine3D/Entt/entt.h>
-#include <Engine3D/Scene2D/SceneSerializer.h>
-#include <Engine3D/platforms/PlatformUtils.h>
-#include <Engine3D/Math/Math.h>
-#include <box2d/b2_body.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <Engine3D/Core/Application.h>
-#include <imgui/imgui.h>
-#include <ImGuizmo/ImGuizmo.h>
-#include <Engine3D/Scene2D/Components.h>
-#include <Engine3D/Renderer2D/RenderCommand.h>
 
 namespace Engine3D{
 	EditorLayer::EditorLayer() : Layer("Sandbox2D"){
 	}
 
-	void EditorLayer::onAttach(){
+	void EditorLayer::OnAttach(){
 		RENDER_PROFILE_FUNCTION();
 		
 		// @note For creating our textures
 		_checkerboardTexture = Texture2D::Create("assets/Checkerboard.png");
-		_iconPlay = Texture2D::Create("assets/icons/PlayButton.png");
-		_iconStop = Texture2D::Create("assets/icons/StopButton.png");
+		playIcon = Texture2D::Create("assets/icons/PlayButton.png");
+		stopIcon = Texture2D::Create("assets/icons/StopButton.png");
 
 		FrameBufferSpecifications frameBufSpecs;
 		// @note In graphics, there are different formats OpenGL handles RGB, such as RGBA8, RED (same as RGBA8 but one channel that is an int.)
@@ -35,7 +23,7 @@ namespace Engine3D{
 		_framebuffers = FrameBuffer::Create(frameBufSpecs); // Creating out frame buffer
 		_activeScene = CreateRef<Scene>();
 
-		auto commandLineArgs = Application::Get().getCommandLineArgs();
+		auto commandLineArgs = Application::GetCmdLineArg();
 
 		if(commandLineArgs.count > 1){
 			auto sceneFilepath = commandLineArgs[1];
@@ -48,16 +36,19 @@ namespace Engine3D{
 		_sceneHeirarchyPanel.setContext(_activeScene);
 	}
 
-	void EditorLayer::onDetach(){
+	void EditorLayer::OnDetach(){
 		RENDER_PROFILE_FUNCTION();
 	}
 
-	void EditorLayer::onUpdate(Timestep ts){
+	void EditorLayer::OnUpdate(Timestep ts){
 		RENDER_PROFILE_FUNCTION();
+
+		if(InputPoll::IsKeyPressed(ENGINE_KEY_ESCAPE)){
+			Application::Close();
+		}
 		
 		// Updating scripts
 		// Iterate all entities in ScriptableEntity
-		
 		if(FrameBufferSpecifications spec = _framebuffers->getSpecifications();
 				_viewportSize.x > 0.0f and _viewportSize.y > 0.0f &&
 				(spec.width != _viewportSize.x || spec.height != _viewportSize.y)){
@@ -67,41 +58,31 @@ namespace Engine3D{
 		}
 		
 		// Update (if mouse cursor is focused in window.)
-		/* if(_isViewportFocused){ */
-			/* _cameraController.onUpdate(ts); */
-		/* } */
-		_editorCamera.onUpdate(ts);
+		_editorCamera.OnUpdate(ts);
 		
-		// Render
-		Renderer2D::resetStats();
-		_framebuffers->bind();
+		_framebuffers->Bind();
 		RendererCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RendererCommand::clear();
 		
 		// @note Clearing out entity ID attachment to -1
 		_framebuffers->clearColorAttachment(1, -1);
 
-		Ref<Texture2D> icon = _sceneState == SceneState::Edit ? _iconPlay : _iconStop;
-
-		/* _framebuffers->clearColorAttachment(1, -1); */
-			switch (_sceneState) {
+		Ref<Texture2D> icon = sceneState == SceneState::Edit ? playIcon : stopIcon;
+			switch (sceneState) {
 			case SceneState::Edit:
 				{
-					_editorCamera.onUpdate(ts);
+					_editorCamera.OnUpdate(ts);
 
-					_activeScene->onUpdateEditor(ts, _editorCamera);
+					_activeScene->OnUpdateEditor(ts, _editorCamera);
 				}
 				break;
 			case SceneState::Play:
 				{
-					_activeScene->onUpdateRuntime(ts);
+					_activeScene->OnUpdateRuntime(ts);
 					break;
 				}
 
 		}
-		
-		// glClearTexImage does not work in Mac, hence commented this out.
-		/* _activeScene->onUpdateEditor(ts, _editorCamera); */
 		
 		// @note this gives us the cursor location.
 		auto[mouseX, mouseY] = ImGui::GetMousePos();
@@ -116,22 +97,23 @@ namespace Engine3D{
 		// @note giving feedback the pixel of that vertex buffer.
 		if(mouseX >= 0 and mouseY >= 0 and mouseX < (int)viewportSize.x and mouseY < (int)viewportSize.y){
 			int pixel = _framebuffers->readPixel(1, currentMouseX, currentMouseY);
-			coreLogInfo("Pixel Data is {}", pixel);
+			// coreLogInfo("Pixel Data is {}", pixel);
+			hoveredEntity = (pixel == -1 || pixel > 10000000) ? Entity() : Entity((entt::entity)pixel, _activeScene.get());
 
 			// @note For some reason pixel gives values 1036831949 or either -1, so this is just a simple work around.
 			// @note Should probably have a UUID's for this...
-			if(pixel == -1 || pixel > 10000000){
-				hoveredEntity = Entity();
-			}
-			else{
-				hoveredEntity = Entity((entt::entity)pixel, _activeScene.get());
-			}
+			// if(pixel == -1 || pixel > 10000000){
+			// 	hoveredEntity = Entity();
+			// }
+			// else{
+			// 	hoveredEntity = Entity((entt::entity)pixel, _activeScene.get());
+			// }
 		}
 
-		_framebuffers->unbind();
+		_framebuffers->Unbind();
 	}
 
-	void EditorLayer::onImguiRender(){
+	void EditorLayer::OnUIRender(){
 		static bool dockSpaceOpened = true;
 		static bool opt_fullscreen = true;
 		static bool opt_padding = false;
@@ -201,7 +183,7 @@ namespace Engine3D{
 				ImGui::Separator();
 
 
-				if(ImGui::MenuItem("Exit", "Ctrl+X")) Application::Get().close();
+				if(ImGui::MenuItem("Exit", "Ctrl+X")) Application::Close();
 
 				ImGui::EndMenu();
 			}
@@ -216,7 +198,7 @@ namespace Engine3D{
 		
 		std::string name = "None";
 		if(hoveredEntity){
-			name = hoveredEntity.getComponent<TagComponent>().tag;
+			name = hoveredEntity.GetComponent<TagComponent>().tag;
 		}
 
 		ImGui::Text("Hovered Entity: %s", name.c_str());
@@ -247,8 +229,9 @@ namespace Engine3D{
 		_viewportBound[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y};
 		_viewportBound[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y};
 
-		Application::Get().getImGuiLayer()->setBlockEvents(!_isViewportFocused && !_isViewportHovered); // if either out of focused or hovered
-
+		// Application::Get().GetImGuiLayer()->SetBlockEvents(!_isViewportFocused && !_isViewportHovered); // if either out of focused or hovered
+		Application::GetImGuiLayer()->SetBlockEvents(!_isViewportFocused && !_isViewportHovered); // if either out of focused or hovered
+		
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		_viewportSize = {_viewportSize.x, _viewportSize.y};
 		// Assuming the viewPortPanelSize is this type.
@@ -289,7 +272,7 @@ namespace Engine3D{
 			glm::mat4 cameraView = _editorCamera.getViewMatrix();
 
 			// Snapping
-			bool isSnap = InputPoll::isKeyPressed(KeyCode::LeftControl);
+			bool isSnap = InputPoll::IsKeyPressed(KeyCode::LeftControl);
 			float snapValue = 0.5f;
 
 			if(_gizmoType == ImGuizmo::OPERATION::ROTATE)
@@ -298,8 +281,8 @@ namespace Engine3D{
 			float snapValues[3] = {snapValue, snapValue, snapValue};
 			
 			// Enttiy Transform
-			auto& tc = selectedEntity.getComponent<TransformComponent>();
-			glm::mat4 transform = tc.getTransform();
+			auto& tc = selectedEntity.GetComponent<TransformComponent>();
+			glm::mat4 transform = tc.GetTransform();
 
 
 			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)_gizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, isSnap ? snapValues : nullptr);
@@ -345,17 +328,17 @@ namespace Engine3D{
 		ImGui::Begin("##toolbox");
 		
 		// @note checking to see what state we are in. (If playing/stopping)
-		Ref<Texture2D> icon = _sceneState == SceneState::Edit ? _iconPlay : _iconStop;
+		Ref<Texture2D> icon = sceneState == SceneState::Edit ? playIcon : stopIcon;
 		
 		// @note GetWindowContentRegionMax().x is how much space is there for content (widgets)
 		// @note 0.5f is the offset for padding.
 		// @note takes button size and halves it and makes the offset the center of that tab. (centering  buttons)
 		ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
 
-		if(ImGui::ImageButton((ImTextureID)icon->getRendererID(), ImVec2{size, size}, ImVec2(0, 0), ImVec2(1, 1))){
-			if(_sceneState == SceneState::Edit)
+		if(ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2{size, size}, ImVec2(0, 0), ImVec2(1, 1))){
+			if(sceneState == SceneState::Edit)
 				onScenePlay();
-			else if(_sceneState == SceneState::Play)
+			else if(sceneState == SceneState::Play)
 				onSceneStop();
 		}
 		
@@ -364,23 +347,23 @@ namespace Engine3D{
 		ImGui::End();
 	}
 
-	void EditorLayer::onEvent(Event& e){
+	void EditorLayer::OnEvent(Event& e){
 		/* _cameraController.onEvent(e); */
-		_editorCamera.onEvent(e);
+		_editorCamera.OnEvent(e);
 
 		// Enabling key bindings
 		EventDispatcher dispatcher(e);
 
-		dispatcher.Dispatch<KeyPressedEvent>(bind_function(this, &EditorLayer::onKeyPressed));
-		dispatcher.Dispatch<MouseButtonPressedEvent>(bind_function(this, &EditorLayer::onMousePressed));
+		dispatcher.Dispatch<KeyPressedEvent>(bind(this, &EditorLayer::onKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(bind(this, &EditorLayer::onMousePressed));
 	}
 	
 	bool EditorLayer::onKeyPressed(KeyPressedEvent& e){
 		// Only works with shortcuts
-		if(e.GetRepeatCount() > 0)
+		if(e.GetRepeatedCount() > 0)
 			return false;
-		bool control = InputPoll::isKeyPressed(KeyCode::LeftControl) || InputPoll::isKeyPressed(KeyCode::RightControl);
-		bool shift = InputPoll::isKeyPressed(KeyCode::LeftShift) || InputPoll::isKeyPressed(KeyCode::RightShift);
+		bool control = InputPoll::IsKeyPressed(KeyCode::LeftControl) || InputPoll::IsKeyPressed(KeyCode::RightControl);
+		bool shift = InputPoll::IsKeyPressed(KeyCode::LeftShift) || InputPoll::IsKeyPressed(KeyCode::RightShift);
 
 		switch (e.GetKeyCode()) {
 		case KeyCode::N:
@@ -408,7 +391,7 @@ namespace Engine3D{
 			break;
 		case KeyCode::X:
 			if(control){
-				Application::Get().close();
+				Application::Close();
 			}
 			break;
 			// Gizmos controls
@@ -440,15 +423,29 @@ namespace Engine3D{
 		
 		std::string filepath = FileDialogs::openFile("Game Engine (*.engine)\0*.engine\0");
 		coreLogTrace("Trace #2 -- filepath = {0}\n", filepath);
+
+		if(sceneState != SceneState::Edit)
+			onSceneStop();
+
+		Ref<Scene> scene = CreateRef<Scene>();
+		SceneSerializer serializer(scene);
 		
 		if(!filepath.empty()){
-			_activeScene = CreateRef<Scene>();
-			_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
-			_sceneHeirarchyPanel.setContext(_activeScene);
-
-			SceneSerializer serializer(_activeScene);
 			serializer.deserialize(filepath);
+			editorScene = scene;
+			editorScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
+			_sceneHeirarchyPanel.setContext(editorScene);
+			_activeScene = editorScene;
 		}
+		// SceneSerializer SceneSerializer
+		// if(!filepath.empty()){
+		// 	Ref<Scene> loadedScene = CreateRef<Scene>();
+		// 	_activeScene = loadedScene;
+		// 	_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
+
+		// 	SceneSerializer serializer(_activeScene);
+		// 	_sceneHeirarchyPanel.setContext(_activeScene);
+		// }
 		/* _activeScene = CreateRef<Scene>(); */
 		/* _activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y); */
 		/* _sceneHeirarchyPanel.setContext(_activeScene); */
@@ -478,9 +475,10 @@ namespace Engine3D{
 	bool EditorLayer::onMousePressed(MouseButtonPressedEvent& e){
 		// @note Change entity that we are clicking (only if we are hovering over that entitiy specifically.
 		// @note enabling mouse picking here
-		if(e.GetMouseButton() == Mouse::ButtonLeft){
+		// if(e.GetMouseButton() == Mouse::ButtonLeft){
+		if(InputPoll::IsMousePressed(Mouse::ButtonLeft)){
 			
-			if(_isViewportHovered && !ImGuizmo::IsOver() && !InputPoll::isKeyPressed(Key::LeftAlt))
+			if(_isViewportHovered && !ImGuizmo::IsOver() && !InputPoll::IsKeyPressed(Key::LeftAlt))
 				_sceneHeirarchyPanel.setSelectedEntity(hoveredEntity);
 		}
 
@@ -488,12 +486,17 @@ namespace Engine3D{
 	}
 
 	void EditorLayer::onScenePlay(){
-		_sceneState = SceneState::Play;
-		_activeScene->onRuntimeStart();
+		sceneState = SceneState::Play;
+
+		_activeScene = Scene::Copy(editorScene); //! @note  Assigning that our current active scene is our editor.
+		// _activeScene = editorScene;
+		_activeScene->OnRuntimeStart();
+		_sceneHeirarchyPanel.setContext(_activeScene);
 	}
 
 	void EditorLayer::onSceneStop(){
-		_sceneState = SceneState::Edit;
-		_activeScene->onRuntimeStop();
+		sceneState = SceneState::Edit;
+		_activeScene->OnRuntimeStop();
+		_activeScene = editorScene;
 	}
 };

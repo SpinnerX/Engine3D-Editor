@@ -2,8 +2,8 @@
 #include "ContentBrowserPanel.h"
 #include <imgui/imgui.h>
 #include <filesystem>
-#include <Engine3D/Events/MouseEvent.h>
-#include <Engine3D/Events/InputPoll.h>
+#include <Engine3D/Event/MouseEvent.h>
+#include <Engine3D/Event/InputPoll.h>
 
 namespace Engine3D{
 	static const std::filesystem::path _assetPath = "assets";
@@ -52,7 +52,7 @@ namespace Engine3D{
 			Ref<Texture2D> icon = directoryEntry.is_directory() ? _directoryIcon : _fileIcon;
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
-			ImGui::ImageButton(reinterpret_cast<void *>(icon->getRendererID()), {thumbnailSize, thumbnailSize}, { 0, 1 }, { 1, 0});
+			ImGui::ImageButton(reinterpret_cast<void *>(icon->GetRendererID()), {thumbnailSize, thumbnailSize}, { 0, 1 }, { 1, 0});
 			
 			if(ImGui::BeginDragDropSource()){
 				/* const char* itemPath = relativePath.c_str(); */
