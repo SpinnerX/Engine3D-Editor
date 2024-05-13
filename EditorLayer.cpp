@@ -2,6 +2,8 @@
 #include "EditorLayer.h"
 
 namespace Engine3D{
+	extern const std::filesystem::path _assetPath;
+
 	EditorLayer::EditorLayer() : Layer("Sandbox2D"){
 	}
 
@@ -9,7 +11,6 @@ namespace Engine3D{
 		RENDER_PROFILE_FUNCTION();
 		
 		// @note For creating our textures
-		_checkerboardTexture = Texture2D::Create("assets/Checkerboard.png");
 		playIcon = Texture2D::Create("assets/icons/PlayButton.png");
 		stopIcon = Texture2D::Create("assets/icons/StopButton.png");
 
@@ -20,7 +21,7 @@ namespace Engine3D{
 		frameBufSpecs.height = 720;
 
 	
-		_framebuffers = FrameBuffer::Create(frameBufSpecs); // Creating out frame buffer
+		framebuffer = FrameBuffer::Create(frameBufSpecs); // Creating out frame buffer
 		_activeScene = CreateRef<Scene>();
 
 		auto commandLineArgs = Application::GetCmdLineArg();
@@ -49,10 +50,10 @@ namespace Engine3D{
 		
 		// Updating scripts
 		// Iterate all entities in ScriptableEntity
-		if(FrameBufferSpecifications spec = _framebuffers->getSpecifications();
+		if(FrameBufferSpecifications spec = framebuffer->getSpecifications();
 				_viewportSize.x > 0.0f and _viewportSize.y > 0.0f &&
 				(spec.width != _viewportSize.x || spec.height != _viewportSize.y)){
-			_framebuffers->resize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
+			framebuffer->resize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
 			_editorCamera.setViewportSize(_viewportSize.x, _viewportSize.y);
 			_activeScene->onViewportResize(_viewportSize.x, _viewportSize.y); // viewport resizing every time the window size is changed
 		}
@@ -60,12 +61,12 @@ namespace Engine3D{
 		// Update (if mouse cursor is focused in window.)
 		_editorCamera.OnUpdate(ts);
 		
-		_framebuffers->Bind();
+		framebuffer->Bind();
 		RendererCommand::setClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RendererCommand::clear();
 		
 		// @note Clearing out entity ID attachment to -1
-		_framebuffers->clearColorAttachment(1, -1);
+		framebuffer->clearColorAttachment(1, -1);
 
 		Ref<Texture2D> icon = sceneState == SceneState::Edit ? playIcon : stopIcon;
 			switch (sceneState) {
@@ -96,7 +97,7 @@ namespace Engine3D{
 		
 		// @note giving feedback the pixel of that vertex buffer.
 		if(mouseX >= 0 and mouseY >= 0 and mouseX < (int)viewportSize.x and mouseY < (int)viewportSize.y){
-			int pixel = _framebuffers->readPixel(1, currentMouseX, currentMouseY);
+			int pixel = framebuffer->readPixel(1, currentMouseX, currentMouseY);
 			// coreLogInfo("Pixel Data is {}", pixel);
 			hoveredEntity = (pixel == -1 || pixel > 10000000) ? Entity() : Entity((entt::entity)pixel, _activeScene.get());
 
@@ -110,7 +111,7 @@ namespace Engine3D{
 			// }
 		}
 
-		_framebuffers->Unbind();
+		framebuffer->Unbind();
 	}
 
 	void EditorLayer::OnUIRender(){
@@ -165,19 +166,19 @@ namespace Engine3D{
 			if (ImGui::BeginMenu("File")){
 				
 				if(ImGui::MenuItem("New", "Ctrl+N")){
-					newScene();
+					NewScene();
 				}
 
 				ImGui::Separator();
 
 				if(ImGui::MenuItem("Open", "Ctrl+O")){
-					openScene();
+					OpenScene();
 				}
 				
 				ImGui::Separator();
 
 				if(ImGui::MenuItem("Save as", "Ctrl+Shift+s")){
-					saveAs();
+					SaveAs();
 				}
 				
 				ImGui::Separator();
@@ -191,8 +192,8 @@ namespace Engine3D{
 		}
 		
 		// @note TODO: Probably adding panels to a list, in the cases that there will be multiple panels for the editor.
-		_sceneHeirarchyPanel.onImguiRender();
-		_contentBrowserPanel.onImguiRender();
+		_sceneHeirarchyPanel.OnUIRender();
+		_contentBrowserPanel.OnUIRender();
 
 		ImGui::Begin("Stats");
 		
@@ -237,12 +238,12 @@ namespace Engine3D{
 		// Assuming the viewPortPanelSize is this type.
 		if(_viewportSize != *((glm::vec2 *)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0){
 			// Recreating the frame buffer.
-			_framebuffers->resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
+			framebuffer->resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 			_viewportSize = {viewportPanelSize.x, viewportPanelSize.y};
 		}
 
 		// By passing this renderer ID, this gives us the ID of the texture that we want to render.
-		uint32_t textureID = _framebuffers->getColorAttachmentRendererID(); // Getting color buffer from frame buffer
+		uint32_t textureID = framebuffer->getColorAttachmentRendererID(); // Getting color buffer from frame buffer
 		ImGui::Image(reinterpret_cast<void *>(textureID), ImVec2{_viewportSize.x, _viewportSize.y}, ImVec2{0, 1}, ImVec2{1, 0});
 		
 		// @note This allows us to drop content browser items to this specific target od draggind/dropping
@@ -250,7 +251,7 @@ namespace Engine3D{
 			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM");
 			std::filesystem::path filepath = (const char*)payload->Data;
 
-			openSceneTarget(&filepath);
+			OpenScene(std::filesystem::path(_assetPath) / filepath);
 
 			ImGui::EndDragDropTarget();
 		}
@@ -302,31 +303,41 @@ namespace Engine3D{
 		ImGui::PopStyleVar();
 		
 		// Calling UI stuff
-		ui_toolBar();
+		UIToolbar();
 
 
 		ImGui::End();
 
 	}
 	
-	void EditorLayer::ui_toolBar(){
+	void EditorLayer::UIToolbar(){
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2)); // @note ImVec making button not touch bottom
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 2));
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
 		auto& color = ImGui::GetStyle().Colors;
+
 		auto& buttonHovered = color[ImGuiCol_ButtonHovered];
-		auto& buttonActive = color[ImGuiCol_ButtonActive];
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+
+		auto& buttonActive = color[ImGuiCol_ButtonActive];
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
 
 		// @note setting size dynamically
 		/* float size = ImGui::GetWindowHeight() - 4.0f; */
-		float size = 20.0f;
+		// float size = 20.0f;
 		// @note nullptr meaning not closing the toolbar (not having close button
 		/* ImGui::Begin("##", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse); */
-		ImGui::Begin("##toolbox");
+		ImGui::Begin("##toolbox", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		bool toolbarEnabled = (bool)_activeScene;
+
+		ImVec4 tintColor = ImVec4(1, 1, 1, 1);
+		if(!toolbarEnabled) tintColor.w = 0.5f;
 		
+		float size = ImGui::GetWindowHeight() - 4.0f;
+		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+
 		// @note checking to see what state we are in. (If playing/stopping)
 		Ref<Texture2D> icon = sceneState == SceneState::Edit ? playIcon : stopIcon;
 		
@@ -335,11 +346,12 @@ namespace Engine3D{
 		// @note takes button size and halves it and makes the offset the center of that tab. (centering  buttons)
 		ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
 
-		if(ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2{size, size}, ImVec2(0, 0), ImVec2(1, 1))){
+		// if(ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2{size, size}, ImVec2(0, 0), ImVec2(1, 1))){
+		if(ImGui::ImageButton(reinterpret_cast<void *>(icon->GetRendererID()), ImVec2{size, size}, ImVec2(0, 0), ImVec2(1, 1))){
 			if(sceneState == SceneState::Edit)
-				onScenePlay();
+				OnScenePlay();
 			else if(sceneState == SceneState::Play)
-				onSceneStop();
+				OnSceneStop();
 		}
 		
 		ImGui::PopStyleVar(2);
@@ -369,7 +381,7 @@ namespace Engine3D{
 		case KeyCode::N:
 		{
 			  if(control){
-				newScene();
+				NewScene();
 			  }
 		}
 			  break;
@@ -377,7 +389,7 @@ namespace Engine3D{
 		case KeyCode::O:
 		{
 			  if(control){
-					openScene();
+					OpenScene();
 			  }
 		}
 			  break;
@@ -385,7 +397,7 @@ namespace Engine3D{
 		case KeyCode::S:
 		{
 			if(control && shift){
-				saveAs();
+				SaveAs();
 			}
 		}
 			break;
@@ -413,25 +425,32 @@ namespace Engine3D{
 
 		return false;
 	}
-	void EditorLayer::newScene(){
+
+	void EditorLayer::NewScene(){
 		_activeScene = CreateRef<Scene>();
 		_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
 		_sceneHeirarchyPanel.setContext(_activeScene);
 	}
 
-	void EditorLayer::openScene(){
+	void EditorLayer::OpenScene(){
 		
 		std::string filepath = FileDialogs::openFile("Game Engine (*.engine)\0*.engine\0");
 		coreLogTrace("Trace #2 -- filepath = {0}\n", filepath);
 
 		if(sceneState != SceneState::Edit)
-			onSceneStop();
+			OnSceneStop();
 
 		Ref<Scene> scene = CreateRef<Scene>();
 		SceneSerializer serializer(scene);
-		
-		if(!filepath.empty()){
-			serializer.deserialize(filepath);
+
+		// if(!filepath.empty()){
+		// 	serializer.deserialize(filepath);
+		// 	editorScene = scene;
+		// 	editorScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
+		// 	_sceneHeirarchyPanel.setContext(editorScene);
+		// 	_activeScene = editorScene;
+		// }
+		if(serializer.deserialize(filepath)){
 			editorScene = scene;
 			editorScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
 			_sceneHeirarchyPanel.setContext(editorScene);
@@ -454,16 +473,16 @@ namespace Engine3D{
 		/* serializer.deserialize("assets/scene/3DGreenCubeWorks.engine"); */
 	}
 	
-	void EditorLayer::openSceneTarget(std::filesystem::path* path){
+	void EditorLayer::OpenScene(const std::filesystem::path& path){
 		_activeScene = CreateRef<Scene>();
 		_activeScene->onViewportResize((uint32_t)_viewportSize.x, (uint32_t)_viewportSize.y);
 		_sceneHeirarchyPanel.setContext(_activeScene);
 
 		SceneSerializer serializer(_activeScene);
-		serializer.deserialize(path->string());
+		serializer.deserialize(path.string());
 	}
 
-	void EditorLayer::saveAs(){
+	void EditorLayer::SaveAs(){
 		std::string filepath = FileDialogs::saveFile("Game Engine (*.engine)\0*.engine\0");
 		
 		if(!filepath.empty()){
@@ -475,7 +494,6 @@ namespace Engine3D{
 	bool EditorLayer::onMousePressed(MouseButtonPressedEvent& e){
 		// @note Change entity that we are clicking (only if we are hovering over that entitiy specifically.
 		// @note enabling mouse picking here
-		// if(e.GetMouseButton() == Mouse::ButtonLeft){
 		if(InputPoll::IsMousePressed(Mouse::ButtonLeft)){
 			
 			if(_isViewportHovered && !ImGuizmo::IsOver() && !InputPoll::IsKeyPressed(Key::LeftAlt))
@@ -485,18 +503,19 @@ namespace Engine3D{
 		return false;
 	}
 
-	void EditorLayer::onScenePlay(){
+	void EditorLayer::OnScenePlay(){
 		sceneState = SceneState::Play;
 
-		_activeScene = Scene::Copy(editorScene); //! @note  Assigning that our current active scene is our editor.
-		// _activeScene = editorScene;
+		// _activeScene = Scene::Copy(editorScene); //! @note  Assigning that our current active scene is our editor.
+		_activeScene = editorScene;
 		_activeScene->OnRuntimeStart();
 		_sceneHeirarchyPanel.setContext(_activeScene);
 	}
 
-	void EditorLayer::onSceneStop(){
+	void EditorLayer::OnSceneStop(){
 		sceneState = SceneState::Edit;
 		_activeScene->OnRuntimeStop();
 		_activeScene = editorScene;
+		_sceneHeirarchyPanel.setContext(_activeScene);
 	}
 };

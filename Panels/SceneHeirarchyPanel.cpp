@@ -9,8 +9,7 @@
 #include <Engine3D/Core/EngineLogger.h>
 
 namespace Engine3D{
-	extern const std::filesystem::path _assetPath;
-	const std::filesystem::path _assetPath = "assets";
+	extern const std::filesystem::path _assetPath = "assets";
 
 	// Since BeginPopupContextWindow(const char*, ImGuiMouseButton, bool) is obsolete in ImGui, just recreated that function call through here.
     static inline bool BeginPopupContextWindow(const char* str_id, ImGuiMouseButton mb, bool over_items) {
@@ -32,15 +31,14 @@ namespace Engine3D{
 		_selectionContext = entity;
 	}
 
-	void SceneHeirachyPanel::onImguiRender(){
+	void SceneHeirachyPanel::OnUIRender(){
 		// @note Drawing this whole scene heirarchy.
 		// @note Setting up ImGui
 		ImGui::Begin("Scene Heirarchy");
+		if(_context){
+		// @note Whenever creating an entity you give the tag component to it.
 		_context->_registry.each([&](auto entityID){
 			Entity entity = {entityID, _context.get() };
-			
-			// @note Wanting to check for a valid entity (may not want to list all entities)
-			// @note Whenever creating an entity you give the tag component to it.
 			drawEntityNode(entity);
 		});
 		
@@ -55,7 +53,6 @@ namespace Engine3D{
 		if(BeginPopupContextWindow(0, 1, false)){
 			if(ImGui::MenuItem("Create Empty Entity"))
 				_context->createEntity("Empty Entity");
-
 			ImGui::EndPopup();
 		}
 
@@ -67,6 +64,7 @@ namespace Engine3D{
 		// Checking if there is any selected context scene is valid
 		if(_selectionContext){
 			drawComponents(_selectionContext);
+		}
 		}
 
 		ImGui::End();
@@ -204,11 +202,11 @@ namespace Engine3D{
 		ImGui::PopID();
 	}
 	
-	/*
+	/**
 	 *
 	 * @param T is the component type we are passing
 	 * @param UIFucntion is the lambda function.
-	 *
+	 * @note DrawComponent is essentially how we render information from our entities to our UI
 	 * */
 	template<typename T, typename UIFunction>
 	static void drawComponent(const std::string& name, Entity entity, UIFunction uiFunction){
@@ -292,10 +290,16 @@ namespace Engine3D{
 					ImGui::CloseCurrentPopup();
 				}
 			}
+
+			if(!_selectionContext.HasComponent<CircleRendererComponent>()){
+				if(ImGui::MenuItem("Circle Renderer")){
+					_selectionContext.AddComponent<CircleRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
 			
 			if(!_selectionContext.HasComponent<RigidBody2DComponent>()){
 				if(ImGui::MenuItem("Rigidbody 2D")){
-					coreLogWarn("Adding <RigidBody2DComponent>");
 					_selectionContext.AddComponent<RigidBody2DComponent>();
 					ImGui::CloseCurrentPopup();
 				}
@@ -407,9 +411,21 @@ namespace Engine3D{
 				// @note for loading a texture via drag/drop
 				if(ImGui::BeginDragDropTarget()){
 					if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
-						const char* filepath = (const char*)payload->Data;
+						// unsigned char* filepath = (unsigned char*)payload->Data;
+
+						if(payload->Data == nullptr) coreLogWarn("Data payload was invalid for dropping this texture image!");
+						std::string filepath((const char*)payload->Data);
 						std::filesystem::path texturePath = std::filesystem::path(_assetPath) / filepath;
-						component.texture = Texture2D::Create(texturePath);
+						Ref<Texture2D> createdTexture = Texture2D::Create(texturePath);
+						// component.texture = Texture2D::Create(texturePath);
+
+						if(createdTexture->IsLoaded()){
+							component.texture = createdTexture;
+						}
+						else{
+							coreLogWarn("Could not load dragged image to create texture!");
+						}
+						// component.texture = 
 					}
 
 					ImGui::EndDragDropTarget();
@@ -417,6 +433,12 @@ namespace Engine3D{
 
 				// @note Doing Texture stuff
 				ImGui::DragFloat("Tiling Factor", &component.tilingFactor, 0.1f, 0.0f, 100.0f);
+		});
+
+		drawComponent<CircleRendererComponent>("Circle Renderer", entity, [](auto& component){
+				// ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
+				// ImGui::DragFloat("Thickness", &component.thickness, 0.025f, 0.0f, 1.0f);
+				ImGui::DragFloat("Fade", &component.fade, 0.00025f, 0.0f, 1.0f);
 		});
 
 		drawComponent<RigidBody2DComponent>("Rigidbody 2D", entity, [](auto& component){

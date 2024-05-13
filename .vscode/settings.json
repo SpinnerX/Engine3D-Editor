@@ -2,6 +2,8 @@
     "files.associations": {
         "*.h": "cpp",
         "utility": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "filesystem": "cpp",
+        "string": "cpp"
     }
 }

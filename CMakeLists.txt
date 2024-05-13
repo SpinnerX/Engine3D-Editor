@@ -40,6 +40,7 @@ add_executable(
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/imgui.ini DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 
 target_link_libraries(
     ${PROJECT_NAME}

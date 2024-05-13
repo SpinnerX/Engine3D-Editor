@@ -29,19 +29,23 @@ namespace Engine3D{
 		bool onKeyPressed(KeyPressedEvent& e);
 		bool onMousePressed(MouseButtonPressedEvent& e);
 
-		void newScene();
-		void openScene();
-		void openSceneTarget(std::filesystem::path* path);
-		void saveAs();
+		void NewScene();
+		void OpenScene();
+
+		//! @note Opening new scene target
+		void OpenScene(const std::filesystem::path& path);
+
+		void SaveAs();
 
 	private:
 		// @note playing/stopping/simulating scenes
-		void onScenePlay();
-		void onSceneStop();
+		void OnScenePlay();
+		void OnSceneStop();
 
 	private:
 		// @note ui-related function calls
-		void ui_toolBar();
+		//! @note Tool bar for the UI for play/stop/reset button
+		void UIToolbar();
 
     private:
         Ref<VertexArray> _squareVertexArrays;
@@ -49,16 +53,13 @@ namespace Engine3D{
         bool _isViewportFocused = false;
 		bool _isViewportHovered = false;
 
-		Ref<Texture2D> _checkerboardTexture;
-
-
-		Ref<FrameBuffer> _framebuffers;
+		Ref<FrameBuffer> framebuffer;
 
 		SceneHeirachyPanel _sceneHeirarchyPanel;
 		ContentBrowserPanel _contentBrowserPanel;
 
 
-		Ref<Scene> _activeScene; 
+		Ref<Scene> _activeScene;
 		//! @note  Differentiating what scenes we are editing and our runtime.
 		Ref<Scene> editorScene, runtimeScene;
 

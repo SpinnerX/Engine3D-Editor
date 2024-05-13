@@ -3,12 +3,12 @@
 #include <Engine3D/Graphics/Texture.h>
 
 namespace Engine3D{
-	/*
+	/**
 	 *
 	 *
 	 * @class ContentBrowserPanel
-	 * @note contents that we will be browsing
-	 *
+	 * @note Helps with handling browser content
+	 * @note Used for displaying what our assets directory looks from our UI Editor
 	 *
 	 * */
 
@@ -16,10 +16,11 @@ namespace Engine3D{
 	public:
 		ContentBrowserPanel();
 
-		void onImguiRender();
+		void OnUIRender();
 	private:
 		std::filesystem::path _currentDirectory;
-		Ref<Texture2D> _directoryIcon;
-		Ref<Texture2D> _fileIcon;
+		Ref<Texture2D> directoryIcon;
+		Ref<Texture2D> fileIcon;
+		Ref<Texture2D> backButtonTexture;
 	};
 };

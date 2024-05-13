@@ -8,20 +8,29 @@
 namespace Engine3D{
 	static const std::filesystem::path _assetPath = "assets";
 
-	ContentBrowserPanel::ContentBrowserPanel() : _currentDirectory(_assetPath){
-		_directoryIcon = Texture2D::Create("assets/icons/DirectoryIcon.png");
-		_fileIcon = Texture2D::Create("assets/icons/FileIcon.png");
+	//! @note This fetches the filename in our filepath
+	//! @note Example is if we have "RocketGameAssets/textures/Triangle.png"
+	//! @note We should retrieve Triangle.png
+	static std::string GetFilename(const std::string& path){
+		std::string filename = "";
+		auto lastSlash = path.find_last_of("/\\");
+		lastSlash = (lastSlash == std::string::npos) ? 0 : lastSlash + 1;
+
+		auto lastDot = path.rfind('.');
+		auto count = (lastDot == std::string::npos) ? path.size() - lastSlash : lastDot - lastSlash;
+
+		filename = path.substr(lastSlash, count);
+		return filename;
 	}
 
-	void ContentBrowserPanel::onImguiRender(){
-		ImGui::Begin("Content Browser");
-		
-		if(_currentDirectory != std::filesystem::path(_assetPath)){
-			if(ImGui::Button("<-")){
-				_currentDirectory = _currentDirectory.parent_path();
-			}
-		}
+	ContentBrowserPanel::ContentBrowserPanel() : _currentDirectory(_assetPath){
+		directoryIcon = Texture2D::Create("assets/icons/DirectoryIcon.png");
+		fileIcon = Texture2D::Create("assets/icons/FileIcon.png");
+		backButtonTexture = Texture2D::Create("assets/icons/Back.png");
+	}
 
+	void ContentBrowserPanel::OnUIRender(){
+		ImGui::Begin("Content Browser");
 		// Setting up content button properties
 		static float padding = 16.0f;
 		static float thumbnailSize = 128.0f;
@@ -34,6 +43,16 @@ namespace Engine3D{
 			columnCount = 1;
 
 		ImGui::Columns(columnCount, 0, false);
+		
+		if(_currentDirectory != std::filesystem::path(_assetPath)){
+			// if(ImGui::Button("<-")){
+			// 	_currentDirectory = _currentDirectory.parent_path();
+			// }
+
+			if(ImGui::ImageButton((ImTextureID)backButtonTexture->GetRendererID(), {10.0f, 10.0f}, { 0, 1 }, { 1, 0})){
+				_currentDirectory = _currentDirectory.parent_path();
+			}
+		}
 
 
 		// @note First, list all files in directory
@@ -43,27 +62,30 @@ namespace Engine3D{
 		// @note then to iterate that list every frame.
 		// @note OR could do it per second, to pickup new files (since if file do change)
 		
-		for(auto& directoryEntry : std::filesystem::directory_iterator(_assetPath)){
+		for(auto& directoryEntry : std::filesystem::directory_iterator(_currentDirectory)){
 			const auto& path = directoryEntry.path(); // Absolute Path
 			auto relativePath = std::filesystem::relative(path, _assetPath); 
 			std::string filenameString = relativePath.filename().string();
-			
 			ImGui::PushID(filenameString.c_str());
-			Ref<Texture2D> icon = directoryEntry.is_directory() ? _directoryIcon : _fileIcon;
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
-			ImGui::ImageButton(reinterpret_cast<void *>(icon->GetRendererID()), {thumbnailSize, thumbnailSize}, { 0, 1 }, { 1, 0});
+			Ref<Texture2D> icon = directoryEntry.is_directory() ? directoryIcon : fileIcon;
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			ImGui::ImageButton((ImTextureID)icon->GetRendererID(), {thumbnailSize, thumbnailSize}, { 0, 1 }, { 1, 0});
 			
+
+			//! @note Used for drag dropping a texture to our shapes
+			//! @note Make sure that the corresponding content browser item id is the same when doing drag-drop-source
 			if(ImGui::BeginDragDropSource()){
-				/* const char* itemPath = relativePath.c_str(); */
+				// const wchar_t* itemPath = reinterpret_cast<const wchar_t *>(relativePath.c_str());
 				std::string itemPath = relativePath.string();
-				// @note keep in mind sizeof(itemPath) is in bytes
-				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath.c_str(), itemPath.size());
+				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath.data(), itemPath.size());
+				// ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
+				// std::string itemPath = relativePath.string();
+				// std::string itemName = GetFilename(itemPath);
 				ImGui::EndDragDropSource();
 			}
 
 			ImGui::PopStyleColor();
-
 			if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)){
 				if(directoryEntry.is_directory()){
 					_currentDirectory /= path.filename();

@@ -18,7 +18,7 @@ namespace Engine3D{
 
 		void setContext(const Ref<Scene>& scene);
 
-		void onImguiRender();
+		void OnUIRender();
 		
 		Entity getSelectedEntity() const { return _selectionContext; }
 		
