@@ -6,27 +6,13 @@
 #include <Engine3D/Event/InputPoll.h>
 
 namespace Engine3D{
-	static const std::filesystem::path _assetPath = "assets";
-
-	//! @note This fetches the filename in our filepath
-	//! @note Example is if we have "RocketGameAssets/textures/Triangle.png"
-	//! @note We should retrieve Triangle.png
-	static std::string GetFilename(const std::string& path){
-		std::string filename = "";
-		auto lastSlash = path.find_last_of("/\\");
-		lastSlash = (lastSlash == std::string::npos) ? 0 : lastSlash + 1;
-
-		auto lastDot = path.rfind('.');
-		auto count = (lastDot == std::string::npos) ? path.size() - lastSlash : lastDot - lastSlash;
-
-		filename = path.substr(lastSlash, count);
-		return filename;
-	}
+	static const std::filesystem::path _assetPath = "Resources";
+	std::string ContentBrowserPanel::contentBrowserDragDropTargetID = "CONTENT_BROWSER_ITEM";
 
 	ContentBrowserPanel::ContentBrowserPanel() : _currentDirectory(_assetPath){
-		directoryIcon = Texture2D::Create("assets/icons/DirectoryIcon.png");
-		fileIcon = Texture2D::Create("assets/icons/FileIcon.png");
-		backButtonTexture = Texture2D::Create("assets/icons/Back.png");
+		directoryIcon = Texture2D::Create("Resources/icons/DirectoryIcon.png");
+		fileIcon = Texture2D::Create("Resources/icons/FileIcon.png");
+		backButtonTexture = Texture2D::Create("Resources/icons/Back.png");
 	}
 
 	void ContentBrowserPanel::OnUIRender(){
@@ -45,23 +31,17 @@ namespace Engine3D{
 		ImGui::Columns(columnCount, 0, false);
 		
 		if(_currentDirectory != std::filesystem::path(_assetPath)){
-			// if(ImGui::Button("<-")){
-			// 	_currentDirectory = _currentDirectory.parent_path();
-			// }
-
 			if(ImGui::ImageButton((ImTextureID)backButtonTexture->GetRendererID(), {10.0f, 10.0f}, { 0, 1 }, { 1, 0})){
 				_currentDirectory = _currentDirectory.parent_path();
 			}
 		}
 
 
-		// @note First, list all files in directory
-		//
-		// @note TODO things
-		// @note potentially have this be loaded once, by doing something like adding it in a list or std::vector<T>
-		// @note then to iterate that list every frame.
-		// @note OR could do it per second, to pickup new files (since if file do change)
-		
+		//! @note First, list all files in directory
+		//! @note TODO things
+		//! @note potentially have this be loaded once, by doing something like adding it in a list or std::vector<T>
+		//! @note then to iterate that list every frame.
+		//! @note OR could do it per second, to pickup new files (since if file do change)
 		for(auto& directoryEntry : std::filesystem::directory_iterator(_currentDirectory)){
 			const auto& path = directoryEntry.path(); // Absolute Path
 			auto relativePath = std::filesystem::relative(path, _assetPath); 
@@ -76,12 +56,8 @@ namespace Engine3D{
 			//! @note Used for drag dropping a texture to our shapes
 			//! @note Make sure that the corresponding content browser item id is the same when doing drag-drop-source
 			if(ImGui::BeginDragDropSource()){
-				// const wchar_t* itemPath = reinterpret_cast<const wchar_t *>(relativePath.c_str());
 				std::string itemPath = relativePath.string();
-				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath.data(), itemPath.size());
-				// ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
-				// std::string itemPath = relativePath.string();
-				// std::string itemName = GetFilename(itemPath);
+				ImGui::SetDragDropPayload(contentBrowserDragDropTargetID.c_str(), itemPath.data(), itemPath.size());
 				ImGui::EndDragDropSource();
 			}
 
@@ -99,7 +75,7 @@ namespace Engine3D{
 		}
 
 		ImGui::Columns(1);
-		ImGui::SliderFloat("Thumnail Size", &thumbnailSize, 16, 512);
+		ImGui::SliderFloat("Thumbnail Size", &thumbnailSize, 16, 512);
 		ImGui::SliderFloat("Padding", &padding, 0, 32);
 		
 		ImGui::End();

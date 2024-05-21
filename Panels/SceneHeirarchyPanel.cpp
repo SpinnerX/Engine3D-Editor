@@ -9,7 +9,7 @@
 #include <Engine3D/Core/EngineLogger.h>
 
 namespace Engine3D{
-	extern const std::filesystem::path _assetPath = "assets";
+	extern const std::filesystem::path _assetPath = "Resources";
 
 	// Since BeginPopupContextWindow(const char*, ImGuiMouseButton, bool) is obsolete in ImGui, just recreated that function call through here.
     static inline bool BeginPopupContextWindow(const char* str_id, ImGuiMouseButton mb, bool over_items) {

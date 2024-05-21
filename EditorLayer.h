@@ -30,50 +30,42 @@ namespace Engine3D{
 		bool onMousePressed(MouseButtonPressedEvent& e);
 
 		void NewScene();
-		void OpenScene();
+		void LoadScene();
 
 		//! @note Opening new scene target
-		void OpenScene(const std::filesystem::path& path);
+		void LoadScene(const std::filesystem::path& path);
 
 		void SaveAs();
 
 	private:
 		// @note playing/stopping/simulating scenes
 		void OnScenePlay();
-		void OnSceneStop();
-
-	private:
-		// @note ui-related function calls
-		//! @note Tool bar for the UI for play/stop/reset button
-		void UIToolbar();
+		void OnSceneEdit();
 
     private:
-        Ref<VertexArray> _squareVertexArrays;
-		Ref<Shader> _flatColorShader;
-        bool _isViewportFocused = false;
-		bool _isViewportHovered = false;
+        bool isViewportFocused = false;
+		bool isViewportHovered = false;
 
 		Ref<FrameBuffer> framebuffer;
 
-		SceneHeirachyPanel _sceneHeirarchyPanel;
-		ContentBrowserPanel _contentBrowserPanel;
+		SceneHeirachyPanel sceneHeirarchyPanel;
+		ContentBrowserPanel contentBrowserPanel;
 
 
-		Ref<Scene> _activeScene;
+		Ref<Scene> currentlyActiveScene;
 		//! @note  Differentiating what scenes we are editing and our runtime.
 		Ref<Scene> editorScene, runtimeScene;
 
 
 		bool isPrimaryCamera = true;
-		EditorCamera _editorCamera;
+		EditorCamera editorCamera;
 
 		Entity hoveredEntity; // Gives us the entity we are hovering over.
 
-		int _gizmoType = -1; // @note this is going to be the type of operationt he gizmal is going to be.
+		int gizmo_t = -1; // @note this is going to be the type of operationt he gizmal is going to be.
 
-		glm::vec2 _viewportSize = {0, 0};
-		glm::vec2 _viewportBound[2];
-		glm::vec4 _squareColor;
+		glm::vec2 viewportSize = {0, 0};
+		glm::vec2 viewportBound[2];
 		
 		enum class SceneState{
 			Edit=0, Play=1
