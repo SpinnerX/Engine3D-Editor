@@ -7,6 +7,7 @@
 #include <imgui/imgui.h>
 #include "EditorLayer.h"
 #include "UI/UI.h"
+#include <Engine3D/Debug/Instrumentor.h>
 
 namespace Engine3D{
 	extern const std::filesystem::path _assetPath;
@@ -15,7 +16,7 @@ namespace Engine3D{
 	}
 
 	void EditorLayer::OnAttach(){
-		RENDER_PROFILE_FUNCTION();
+		ENGINE_PROFILE_FUNCTION();
 		
 		// @note For creating our textures
 		playIcon = Texture2D::Create("Resources/icons/PlayButton.png");
@@ -45,11 +46,11 @@ namespace Engine3D{
 	}
 
 	void EditorLayer::OnDetach(){
-		RENDER_PROFILE_FUNCTION();
+		ENGINE_PROFILE_FUNCTION();
 	}
 
 	void EditorLayer::OnUpdate(Timestep ts){
-		RENDER_PROFILE_FUNCTION();
+		ENGINE_PROFILE_FUNCTION();
 		
 		// Updating scripts
 		// Iterate all entities in ScriptableEntity
