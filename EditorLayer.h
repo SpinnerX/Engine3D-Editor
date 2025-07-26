@@ -1,12 +1,12 @@
 #pragma once
 #include <Engine3D/Core/Layer.h>
-#include <Engine3D/interfaces/VertexArray.h>
-#include <Engine3D/interfaces/Shader.h>
-#include <Engine3D/interfaces/Texture.h>
-#include <Engine3D/interfaces/Framebuffer.h>
+#include <Engine3D/Graphics/VertexArray.h>
+#include <Engine3D/Graphics/Shader.h>
+#include <Engine3D/Graphics/Texture.h>
+#include <Engine3D/Graphics/Framebuffer.h>
 #include <Engine3D/Scene2D/Entity.h>
 #include <Engine3D/Renderer2D/EditorCamera.h>
-#include <Engine3D/Events/KeyEvent.h>
+#include <Engine3D/Event/KeyEvent.h>
 #include "Panels/SceneHeirarchyPanel.h"
 #include "Panels/ContentBrowserPanel.h"
 
@@ -18,14 +18,14 @@ namespace Engine3D{
 	
 		virtual ~EditorLayer() = default;
 
-		virtual void onAttach() override;
-		virtual void onDetach() override;
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
 
-		virtual void onUpdate(Timestep ts) override;
+		virtual void OnUpdate(Timestep ts) override;
 
-		virtual void onImguiRender() override;
+		virtual void OnUIRender() override;
 
-		virtual void onEvent(Event& e) override;
+		virtual void OnEvent(Event& e) override;
 	
 	private:
 		bool onKeyPressed(KeyPressedEvent& e);

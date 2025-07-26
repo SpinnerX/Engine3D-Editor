@@ -1,11 +1,18 @@
+#include <Engine3D/Engine3DPrecompiledHeader.h>
 #include "SceneHeirarchyPanel.h"
 #include <Engine3D/Scene2D/Entity.h>
 #include <Engine3D/Scene2D/Scene.h>
 #include <Engine3D/Scene2D/Components.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui/imgui_internal.h>
-#include <Engine3D/interfaces/Texture.h>
+#include <imgui_internal.h>
 #include <filesystem>
+#include <Engine3D/Debug/Instrumentor.h>
+#include <Engine3D/Event/Event.h>
+#include <Engine3D/Event/KeyEvent.h>
+#include <Engine3D/Event/MouseEvent.h>
+#include <Engine3D/Event/InputPoll.h>
+#include <Engine3D/Graphics/Texture.h>
+
 namespace Engine3D{
 	extern const std::filesystem::path _assetPath;
 	const std::filesystem::path _assetPath = "assets";
@@ -28,7 +35,7 @@ namespace Engine3D{
 		_selectionContext = entity;
 	}
 
-	void SceneHeirachyPanel::onImguiRender(){
+	void SceneHeirachyPanel::OnUIRender(){
 		// @note Drawing this whole scene heirarchy.
 		// @note Setting up ImGui
 		ImGui::Begin("Scene Heirarchy");
@@ -69,7 +76,7 @@ namespace Engine3D{
 	}
 	
 	void SceneHeirachyPanel::drawEntityNode(Entity entity){
-		auto& tc = entity.getComponent<TagComponent>().tag;
+		auto& tc = entity.GetComponent<TagComponent>().tag;
 
 		// @param entity - actual entity that we want to pass in
 		// @param flags - Click on actual arrow to expand and select that entity.
@@ -210,8 +217,8 @@ namespace Engine3D{
 	static void drawComponent(const std::string& name, Entity entity, UIFunction uiFunction){
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
 
-		if(entity.hasComponent<T>()){
-			auto& component = entity.getComponent<T>();
+		if(entity.HasComponent<T>()){
+			auto& component = entity.GetComponent<T>();
 			ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
@@ -247,15 +254,15 @@ namespace Engine3D{
 			}
 			
 			if(isRemovedComponent)
-				entity.removeComponent<T>();
+				entity.RemoveComponent<T>();
 		}
 		
 	}
 	
 	void SceneHeirachyPanel::drawComponents(Entity entity){
 		// checking if entity has components.
-		if(entity.hasComponent<TagComponent>()){
-			auto& tag = entity.getComponent<TagComponent>().tag;
+		if(entity.HasComponent<TagComponent>()){
+			auto& tag = entity.GetComponent<TagComponent>().tag;
 
 			// @context Camera0
 			char buffer[256];
@@ -275,30 +282,30 @@ namespace Engine3D{
 			ImGui::OpenPopup("Add Component");
 
 		if(ImGui::BeginPopup("Add Component")){
-			if(!_selectionContext.hasComponent<CameraComponent>()){
+			if(!_selectionContext.HasComponent<CameraComponent>()){
 				if(ImGui::MenuItem("Camera")){
-					_selectionContext.addComponent<CameraComponent>();
+					_selectionContext.AddComponent<CameraComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			
-			if(!_selectionContext.hasComponent<SpriteRendererComponent>()){
+			if(!_selectionContext.HasComponent<SpriteRendererComponent>()){
 				if(ImGui::MenuItem("Sprite Renderer")){
-					_selectionContext.addComponent<SpriteRendererComponent>();
+					_selectionContext.AddComponent<SpriteRendererComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			
-			if(!_selectionContext.hasComponent<RigidBody2DComponent>()){
+			if(!_selectionContext.HasComponent<RigidBody2DComponent>()){
 				if(ImGui::MenuItem("Rigidbody 2D")){
-					_selectionContext.addComponent<RigidBody2DComponent>();
+					_selectionContext.AddComponent<RigidBody2DComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			
-			if(!_selectionContext.hasComponent<BoxCollider2DComponent>()){
+			if(!_selectionContext.HasComponent<BoxCollider2DComponent>()){
 				if(ImGui::MenuItem("Box Collider 2D")){
-					_selectionContext.addComponent<BoxCollider2DComponent>();
+					_selectionContext.AddComponent<BoxCollider2DComponent>();
 					ImGui::CloseCurrentPopup();
 				}
 			}
@@ -315,7 +322,7 @@ namespace Engine3D{
 		// @note TODO probably change the api call to the following below for entity and components retrieval.
 		/*
 		 drawComponent<CameraComponent>("Camera"), [](){
-			auto& src = entity.getComponent<SpriteRendererComponent>();
+			auto& src = entity.GetComponent<SpriteRendererComponent>();
 			ImGui::ColorEdit4("Color", glm::value_ptr(src.color));
 		 });
 		 * */
@@ -408,7 +415,7 @@ namespace Engine3D{
 					if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
 						const char* filepath = (const char*)payload->Data;
 						std::filesystem::path texturePath = std::filesystem::path(_assetPath) / filepath;
-						component.texture = Texture2D::Create(texturePath);
+						component.texture = Texture2D::Create(texturePath.string());
 					}
 
 					ImGui::EndDragDropTarget();

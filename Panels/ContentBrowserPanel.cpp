@@ -1,19 +1,24 @@
 #include <Engine3D/Engine3DPrecompiledHeader.h>
+#include <Engine3D/Core/core.h>
 #include "ContentBrowserPanel.h"
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <filesystem>
-#include <Engine3D/Events/MouseEvent.h>
-#include <Engine3D/Events/InputPoll.h>
+#include <Engine3D/Event/MouseEvent.h>
+#include <Engine3D/Event/InputPoll.h>
+#include <imgui.h>
+#include <Engine3D/Debug/Instrumentor.h>
+#include <Engine3D/Graphics/Texture.h>
+#include <Engine3D/Renderer2D/Renderer2D.h>
 
 namespace Engine3D{
-	static const std::filesystem::path _assetPath = "assets";
+	static const std::filesystem::path _assetPath = "Resources";
 
 	ContentBrowserPanel::ContentBrowserPanel() : _currentDirectory(_assetPath){
-		_directoryIcon = Texture2D::Create("assets/icons/DirectoryIcon.png");
-		_fileIcon = Texture2D::Create("assets/icons/FileIcon.png");
+		_directoryIcon = Texture2D::Create(std::format("{}/icons/DirectoryIcon.png", _assetPath.string()));
+		_fileIcon = Texture2D::Create(std::format("{}/icons/FileIcon.png", _assetPath.string()));
 	}
 
-	void ContentBrowserPanel::onImguiRender(){
+	void ContentBrowserPanel::OnUIRender(){
 		ImGui::Begin("Content Browser");
 		
 		if(_currentDirectory != std::filesystem::path(_assetPath)){
@@ -43,7 +48,7 @@ namespace Engine3D{
 		// @note then to iterate that list every frame.
 		// @note OR could do it per second, to pickup new files (since if file do change)
 		
-		for(auto& directoryEntry : std::filesystem::directory_iterator(_assetPath)){
+		for(auto& directoryEntry : std::filesystem::directory_iterator(_currentDirectory)){
 			const auto& path = directoryEntry.path(); // Absolute Path
 			auto relativePath = std::filesystem::relative(path, _assetPath); 
 			std::string filenameString = relativePath.filename().string();
@@ -52,7 +57,7 @@ namespace Engine3D{
 			Ref<Texture2D> icon = directoryEntry.is_directory() ? _directoryIcon : _fileIcon;
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 
-			ImGui::ImageButton(reinterpret_cast<void *>(icon->getRendererID()), {thumbnailSize, thumbnailSize}, { 0, 1 }, { 1, 0});
+			ImGui::ImageButton("Button", (void*)icon->GetRendererID(), {thumbnailSize, thumbnailSize}, { 0, 1 }, { 1, 0});
 			
 			if(ImGui::BeginDragDropSource()){
 				/* const char* itemPath = relativePath.c_str(); */

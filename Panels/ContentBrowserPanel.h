@@ -1,6 +1,6 @@
 #pragma once
 #include <filesystem>
-#include <Engine3D/interfaces/Texture.h>
+#include <Engine3D/Graphics/Texture.h>
 
 namespace Engine3D{
 	/*
@@ -16,7 +16,7 @@ namespace Engine3D{
 	public:
 		ContentBrowserPanel();
 
-		void onImguiRender();
+		void OnUIRender();
 	private:
 		std::filesystem::path _currentDirectory;
 		Ref<Texture2D> _directoryIcon;

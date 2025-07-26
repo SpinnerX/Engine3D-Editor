@@ -1,0 +1,26 @@
+[
+{
+  "directory": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/build/Release",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSTB_TEXTEDIT_KEYTYPE=unsigned -DYAML_CPP_STATIC_DEFINE @CMakeFiles/Editor.dir/includes_CXX.rsp -m64 -O3 -DNDEBUG -std=c++23 -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -o CMakeFiles\\Editor.dir\\Application.cpp.obj -c C:\\Users\\heraa\\OneDrive\\Desktop\\Engine3D-Editor\\Application.cpp",
+  "file": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/Application.cpp",
+  "output": "CMakeFiles/Editor.dir/Application.cpp.obj"
+},
+{
+  "directory": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/build/Release",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSTB_TEXTEDIT_KEYTYPE=unsigned -DYAML_CPP_STATIC_DEFINE @CMakeFiles/Editor.dir/includes_CXX.rsp -m64 -O3 -DNDEBUG -std=c++23 -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -o CMakeFiles\\Editor.dir\\EditorLayer.cpp.obj -c C:\\Users\\heraa\\OneDrive\\Desktop\\Engine3D-Editor\\EditorLayer.cpp",
+  "file": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/EditorLayer.cpp",
+  "output": "CMakeFiles/Editor.dir/EditorLayer.cpp.obj"
+},
+{
+  "directory": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/build/Release",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSTB_TEXTEDIT_KEYTYPE=unsigned -DYAML_CPP_STATIC_DEFINE @CMakeFiles/Editor.dir/includes_CXX.rsp -m64 -O3 -DNDEBUG -std=c++23 -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -o CMakeFiles\\Editor.dir\\Panels\\SceneHeirarchyPanel.cpp.obj -c C:\\Users\\heraa\\OneDrive\\Desktop\\Engine3D-Editor\\Panels\\SceneHeirarchyPanel.cpp",
+  "file": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/Panels/SceneHeirarchyPanel.cpp",
+  "output": "CMakeFiles/Editor.dir/Panels/SceneHeirarchyPanel.cpp.obj"
+},
+{
+  "directory": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/build/Release",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DSTB_TEXTEDIT_KEYTYPE=unsigned -DYAML_CPP_STATIC_DEFINE @CMakeFiles/Editor.dir/includes_CXX.rsp -m64 -O3 -DNDEBUG -std=c++23 -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -o CMakeFiles\\Editor.dir\\Panels\\ContentBrowserPanel.cpp.obj -c C:\\Users\\heraa\\OneDrive\\Desktop\\Engine3D-Editor\\Panels\\ContentBrowserPanel.cpp",
+  "file": "C:/Users/heraa/OneDrive/Desktop/Engine3D-Editor/Panels/ContentBrowserPanel.cpp",
+  "output": "CMakeFiles/Editor.dir/Panels/ContentBrowserPanel.cpp.obj"
+}
+]
