@@ -17,7 +17,7 @@ Then inside of the Windows directory. Click the Editor file to run the editor.
 
 Once you run the editor, the following tutorial `How to use` is going to be how to use the editor to create and run your own scenes with physics simulation enabled.
 
-# How to create scene objects
+# Tutorial to Use
 
 ## Creating a Camera Object
 
