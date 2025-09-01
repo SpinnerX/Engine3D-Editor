@@ -295,6 +295,13 @@ namespace Engine3D{
 					ImGui::CloseCurrentPopup();
 				}
 			}
+
+			if(!_selectionContext.HasComponent<CircleRendererComponent>()){
+				if(ImGui::MenuItem("Circle Renderer")){
+					_selectionContext.AddComponent<CircleRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
 			
 			if(!_selectionContext.HasComponent<RigidBody2DComponent>()){
 				if(ImGui::MenuItem("Rigidbody 2D")){
@@ -413,7 +420,8 @@ namespace Engine3D{
 				// @note for loading a texture via drag/drop
 				if(ImGui::BeginDragDropTarget()){
 					if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")){
-						const char* filepath = (const char*)payload->Data;
+						// const char* filepath = (const char*)payload->Data;
+						std::string filepath((const char*)payload->Data);
 						std::filesystem::path texturePath = std::filesystem::path(_assetPath) / filepath;
 						component.texture = Texture2D::Create(texturePath.string());
 					}
